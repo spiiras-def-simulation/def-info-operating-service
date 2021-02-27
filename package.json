@@ -19,7 +19,8 @@
     "graphql-amqp-subscriptions": "^1.1.0",
     "graphql-subscriptions": "^1.1.0",
     "graphql-type-json": "^0.3.1",
-    "subscriptions-transport-ws": "^0.9.16"
+    "subscriptions-transport-ws": "^0.9.16",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "eslint": "^7.3.1",
