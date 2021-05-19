@@ -2,19 +2,22 @@ const { gql } = require('apollo-server-express');
 
 const typeDef = gql`
   extend type Query {
-    getEnvironmentStatus: Environment!
+    getWeatherStatus: WeatherStatus
+    getEnvironmentTime: TimeDate
   }
 
-  type Environment {
+  extend type Subscription {
+    weatherStatusUpdated: WeatherStatus
+  }
+
+  type WeatherStatus {
     wind: WindStatus!
     temperature: Float
     pressure: Float
   }
 
   type WindStatus {
-    x: Float
-    y: Float
-    z: Float
+    direction: Point3
     velocity: Float
   }
 `;

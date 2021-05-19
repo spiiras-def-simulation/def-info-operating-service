@@ -1,20 +1,26 @@
-const statusProxy = {
-  wind: {
-    x: 0.0,
-    y: 0.0,
-    z: 0.0,
-    velocity: 1.0,
-  },
-  temperature: 20.0,
-  pressure: 760.0,
-};
-
 resolvers = {
   Query: {
-    getEnvironmentStatus: () => {
-      const status = statusProxy;
+    getWeatherStatus: async (_, __, { dataSources: { environmentData } }) => {
+      const data = await environmentData.getWeatherState();
 
-      return status && { ...status };
+      return data || null;
+    },
+    getEnvironmentTime: async (_, __, { dataSources: { environmentData } }) => {
+      const data = await environmentData.getEnvironmentTime();
+
+      return data || null;
+    },
+  },
+  Subscription: {
+    weatherStatusUpdated: {
+      subscribe: (_, __, { dataSourses: { environmentData } }) => {
+        environmentData.subscribe({});
+      },
+      resolve: async (_, __, { dataSourses: { environmentData } }) => {
+        const data = await environmentData.getWeatherState();
+
+        return data || null;
+      },
     },
   },
 };
