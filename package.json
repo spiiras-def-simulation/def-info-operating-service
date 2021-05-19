@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "mocha"
   },
   "keywords": [],
   "author": "",
@@ -17,8 +18,10 @@
     "config": "^3.3.1",
     "graphql": "^14.6.0",
     "graphql-amqp-subscriptions": "^1.1.0",
+    "graphql-iso-date": "^3.6.1",
     "graphql-subscriptions": "^1.1.0",
     "graphql-type-json": "^0.3.1",
+    "mocha": "^8.3.2",
     "subscriptions-transport-ws": "^0.9.16",
     "uuid": "^8.3.2"
   },

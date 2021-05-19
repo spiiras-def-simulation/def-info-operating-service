@@ -14,6 +14,6 @@ const httpServer = http.createServer(app);
 createApolloServer(app, httpServer);
 
 httpServer.listen(port, () => {
-  console.log(`server ready at port ${port}`);
-  console.log(`subscriptions ready at port ${port}\n`);
+  console.log(`Server ready at port ${port}`);
+  console.log(`Subscriptions ready at port ${port}`);
 });

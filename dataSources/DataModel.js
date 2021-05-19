@@ -1,64 +1,127 @@
 const amqp = require('amqplib');
+const { AMQPPubSub } = require('graphql-amqp-subscriptions');
 const { v4: uuid } = require('uuid');
 
 class DataModel {
   constructor(options = {}) {
     const { connection = 'amqp://localhost' } = options;
 
-    this.url = connection;
+    this.urlConnection = connection;
+    this.connection = null;
+    this.subscriptions = new Map();
+  }
+
+  async connect() {
+    if (this.connection === null) {
+      console.log(`Initialize model connection with rabbitmq by address ${this.urlConnection}`);
+
+      try {
+        this.connection = await amqp.connect(this.urlConnection);
+
+        console.log('Model connection created');
+      } catch (error) {
+        throw error;
+      }
+    }
   }
 
   async getData({ queue, message = '' }) {
-    const connection = await amqp.connect(this.url);
+    if (this.connection === null) {
+      throw new Error('Model is not connected with rabbitmq');
+    }
 
+    const connection = this.connection;
     const channel = await connection.createChannel();
-    const { queue: retryQueue } = await channel.assertQueue('', { exclusive: true });
-
-    const request = function () {
-      return new Promise((resolve, reject) => {
-        const correlationId = uuid();
-
-        const waitingResponse = setTimeout(
-          () => reject(new Error(`No answer for request ${queue}`)),
-          5000,
-        );
-
-        channel.consume(
-          retryQueue,
-          (answer) => {
-            if (answer.properties.correlationId == correlationId) {
-              const result = JSON.parse(answer.content.toString());
-
-              if (waitingResponse) clearTimeout(waitingResponse);
-
-              resolve(result || null);
-            }
-          },
-          { noAck: true },
-        );
-
-        const packed = Buffer.from(JSON.stringify(message));
-        channel.sendToQueue(queue, packed, { correlationId, replyTo: retryQueue });
-      });
-    };
 
     try {
+      const { queue: retryQueue } = await channel.assertQueue('', {
+        durable: false,
+        autoDelete: true,
+      });
+
+      const request = () => {
+        return new Promise((resolve, reject) => {
+          const correlationId = uuid();
+
+          const waitingResponse = setTimeout(
+            () => reject(new Error(`No answer for request ${queue}`)),
+            1500,
+          );
+
+          channel.consume(
+            retryQueue,
+            (answer) => {
+              try {
+                if (answer.properties.correlationId == correlationId) {
+                  const result = JSON.parse(answer.content.toString());
+
+                  if (waitingResponse) clearTimeout(waitingResponse);
+
+                  resolve(result || null);
+                }
+              } catch (error) {
+                reject(error);
+              }
+            },
+            { noAck: true },
+          );
+
+          const serialized = this.serialize(message);
+          channel.sendToQueue(queue, serialized, { correlationId, replyTo: retryQueue });
+        });
+      };
+
       const response = await request();
+
       return response;
     } catch (error) {
       console.log(error.message);
-      throw error;
+      return null;
     } finally {
-      connection.close();
+      channel.close();
     }
   }
 
   async sendData({ queue, message = '' }) {
-    const connection = await amqp.connect(this.url);
+    if (this.connection === null) {
+      throw new Error('Model is not connected with rabbitmq');
+    }
+
+    const connection = await this.connection;
     const channel = await connection.createChannel();
     channel.assertQueue(queue, { durable: false });
-    const packed = Buffer.from(JSON.stringify(message));
-    channel.sendToQueue(queue, packed);
+    const serialized = this.serialize(message);
+    channel.sendToQueue(queue, serialized);
+  }
+
+  async subscribe({ name, type, options, ...exchange }) {
+    if (this.connection === null) {
+      throw new Error('Model is not connected with rabbitmq');
+    }
+
+    const connection = this.connection;
+
+    if (this.subscriptions.has(name)) {
+      return this.subscriptions.get(name);
+    }
+
+    const subscription = new AMQPPubSub({
+      connection,
+      exchange: {
+        name,
+        type,
+        options,
+        ...exchange,
+      },
+    });
+
+    this.subscriptions.set(name, subscription);
+
+    return subscription;
+  }
+
+  serialize(message = '') {
+    return Buffer.from(typeof message === 'object' ? JSON.stringify(message) : message);
   }
 }
 
