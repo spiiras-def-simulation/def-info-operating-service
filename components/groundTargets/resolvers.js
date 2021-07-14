@@ -1,5 +1,0 @@
-resolvers = {};
-
-module.exports = {
-  resolvers,
-};

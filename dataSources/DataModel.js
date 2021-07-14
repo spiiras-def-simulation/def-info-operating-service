@@ -94,7 +94,7 @@ class DataModel {
     channel.sendToQueue(queue, serialized);
   }
 
-  async subscribe({ name, type, options, ...exchange }) {
+  subscribe({ name, type, ...exchange }) {
     if (this.connection === null) {
       throw new Error('Model is not connected with rabbitmq');
     }
@@ -110,7 +110,6 @@ class DataModel {
       exchange: {
         name,
         type,
-        options,
         ...exchange,
       },
     });

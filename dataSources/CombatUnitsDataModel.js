@@ -1,151 +1,84 @@
 const DataModel = require('./DataModel');
 
-const mockUnitsData = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }];
+const { mapObject, unmapObject } = require('./helpers');
 
-const mockUnitTypesData = [
-  {
-    id: 1,
-    name: 'Самолёт 1',
-    rangeVelocity: {
-      min: 0,
-      max: 10,
-    },
-    rangeVelocityUpVertical: {
-      min: 0,
-      max: 10,
-    },
-    rangeVelocityDownVertical: {
-      min: 0,
-      max: 10,
-    },
-    maxCargoQuantity: {
-      max: 10,
-    },
-    maxFuelConsume: {
-      max: 10,
-    },
-    maxTurningRagius: {
-      max: 3,
-    },
-  },
-  {
-    id: 2,
-    name: 'Самолёт 2',
-    rangeVelocity: {
-      min: 0,
-      max: 10,
-    },
-    rangeVelocityUpVertical: {
-      min: 0,
-      max: 10,
-    },
-    rangeVelocityDownVertical: {
-      min: 0,
-      max: 10,
-    },
-    maxCargoQuantity: {
-      max: 10,
-    },
-    maxFuelConsume: {
-      max: 10,
-    },
-    maxTurningRagius: {
-      max: 3,
-    },
-  },
-  {
-    id: 3,
-    name: 'Мультир. 1',
-    rangeVelocity: {
-      min: 0,
-      max: 10,
-    },
-    rangeVelocityUpVertical: {
-      min: 0,
-      max: 10,
-    },
-    rangeVelocityDownVertical: {
-      min: 0,
-      max: 10,
-    },
-    maxCargoQuantity: {
-      max: 10,
-    },
-    maxFuelConsume: {
-      max: 10,
-    },
-    maxTurningRagius: {
-      max: 3,
-    },
-  },
-  {
-    id: 4,
-    name: 'Мультир. 2',
-    rangeVelocity: {
-      min: 0,
-      max: 10,
-    },
-    rangeVelocityUpVertical: {
-      min: 0,
-      max: 10,
-    },
-    rangeVelocityDownVertical: {
-      min: 0,
-      max: 10,
-    },
-    maxCargoQuantity: {
-      max: 10,
-    },
-    maxFuelConsume: {
-      max: 10,
-    },
-    maxTurningRagius: {
-      max: 3,
-    },
-  },
-];
+// const mockUnitsData = [{ id: '1' }];
 
-const mockUnitRolesData = [
-  {
-    id: 1,
-    name: 'Самолёт Разв.',
-    unitType: 1,
-  },
-  {
-    id: 2,
-    name: 'Самолёт Ударн.',
-    unitType: 2,
-  },
-];
+// const mockUnitTypesData = [
+//   {
+//     id: 1,
+//     name: 'Orlan',
+//     vel: [0, 10],
+//     vertical_vel_up: [0, 10],
+//     vertical_vel_down: [0, 10],
+//     cargo_type: 1,
+//     cargo_quantity: 10,
+//     fuel_consume: 10,
+//     radius_of_turn: 3,
+//   },
+// ];
+
+// const mockUnitRolesData = [
+//   {
+//     id: 1,
+//     name: 'Самолёт Разв.',
+//     unitType: 1,
+//   },
+//   {
+//     id: 2,
+//     name: 'Самолёт Ударн.',
+//     unitType: 2,
+//   },
+// ];
+
+const mapUnitType = {
+  name: 'name',
+  rangeVelocity: 'vel',
+  rangeVelocityUpVertical: 'vertical_vel_up',
+  rangeVelocityDownVertical: 'vertical_vel_down',
+  cargoType: 'cargo_type',
+  maxCargoQuantity: 'cargo_quantity',
+  maxFuelConsume: 'fuel_consume',
+  maxTurningRadius: 'radius_of_turn',
+};
+
+const mapUnitWeaponType = {
+  name: 'name',
+  hRange: 'range_horizontal',
+  vRange: 'range_vertical',
+  rapidity: 'rapidity',
+};
 
 const queues = {
-  GET_UNTIS_LIST: 'show_uav_ids_rpc',
+  GET_UNITS: 'get_uav_rpc',
   GET_UNIT_ALTITUDE: 'uav_altitude_rpc',
   GET_UNIT_BATTERY: 'uav_battery_rpc',
   GET_UNIT_LOCAL_POSITION: 'uav_local_pose_rpc',
   GET_UNIT_GLOBAL_POSITION: 'uav_global_pose_rpc',
+  GET_UNIT_TYPES: 'get_uav_type_rpc',
+  ADD_UNIT_TYPE: 'add_uav_type_rpc',
+  REMOVE_UNIT_TYPE: 'delete_uav_type_rpc',
+  GET_UNIT_WEAPON_TYPES: 'get_co_weapon_rpc',
 };
 
 class CombatUnitsDataModel extends DataModel {
   async getUnits() {
-    const unitsResponse = await this.getData({ queue: queues.GET_UNTIS_LIST });
+    const dataResponse = await this.getData({ queue: queues.GET_UNITS, message: {} });
 
-    if (!unitsResponse) {
+    if (!dataResponse) {
       return null;
     }
 
-    return unitsResponse.map(([id]) => ({ id }));
+    return Object.keys(dataResponse).map((id) => ({ id }));
   }
   async getUnit(id) {
-    // const data = mockUnitsData.find((unit) => unit.id === id);
+    const dataResponse = await this.getData({ queue: queues.GET_UNITS, message: { id } });
 
-    const unitsResponse = await this.getUnits();
-
-    if (!unitsResponse) {
+    if (!dataResponse) {
       return null;
     }
 
-    return unitsResponse.find((unit) => unit.id == id);
+    return dataResponse;
   }
 
   async getUnitStatus(id) {
@@ -196,29 +129,96 @@ class CombatUnitsDataModel extends DataModel {
     return data;
   }
 
-  // Нереализовано
   async getUnitTypes() {
-    const data = mockUnitTypesData;
+    const dataResponse = await this.getData({ queue: queues.GET_UNIT_TYPES, message: {} });
 
-    return data;
+    if (!dataResponse || dataResponse.status) {
+      return null;
+    }
+
+    return Object.entries(dataResponse).map(([id, value]) => {
+      const data = mapObject(value, mapUnitType);
+      return { id, ...data };
+    });
   }
   async getUnitType(id) {
-    const data = mockUnitTypesData.find((unitType) => unitType.id === id);
+    const dataResponse = await this.getData({
+      queue: queues.GET_UNIT_TYPES,
+      message: { id },
+    });
 
-    return data;
+    if (!dataResponse || dataResponse.status) {
+      return null;
+    }
+
+    const data = mapObject(dataResponse, mapUnitType);
+    return { id, ...data };
+  }
+  async addUnitType(data) {
+    const input = unmapObject(data, mapUnitType);
+
+    const dataResponse = await this.getData({
+      queue: queues.ADD_UNIT_TYPE,
+      message: { ...input },
+    });
+
+    if (!dataResponse || dataResponse.status) {
+      return null;
+    }
+
+    return dataResponse;
+  }
+  async removeUnitType(id) {
+    const dataResponse = await this.getData({
+      queue: queues.REMOVE_UNIT_TYPE,
+      message: { key: 'id', id },
+    });
+
+    if (!dataResponse || dataResponse.status) {
+      return null;
+    }
+
+    return dataResponse;
   }
 
-  async getUnitRoles() {
-    const data = mockUnitRolesData;
+  async getUnitWeaponTypes() {
+    const dataResponse = await this.getData({ queue: queues.GET_UNIT_WEAPON_TYPES, message: {} });
 
-    return data;
+    if (!dataResponse || dataResponse.status) {
+      return null;
+    }
+
+    return Object.entries(dataResponse).map(([id, value]) => {
+      const data = mapObject(value, mapUnitWeaponType);
+      return { id, ...data };
+    });
   }
 
-  async getUnitRole(id) {
-    const data = mockUnitRoleData.find((unitRole) => unitRole.id === id);
+  async getUnitWeaponType(id) {
+    const dataResponse = await this.getData({
+      queue: queues.GET_UNIT_WEAPON_TYPES,
+      message: { id },
+    });
 
-    return data;
+    if (!dataResponse || dataResponse.status) {
+      return null;
+    }
+
+    const data = mapObject(dataResponse, mapUnitWeaponType);
+    return { id, ...data };
   }
+
+  // Нереализовано
+  // async getUnitRoles() {
+  //   const data = mockUnitRolesData;
+
+  //   return data;
+  // }
+  // async getUnitRole(id) {
+  //   const data = mockUnitRoleData.find((unitRole) => unitRole.id === id);
+
+  //   return data;
+  // }
 }
 
 module.exports = CombatUnitsDataModel;

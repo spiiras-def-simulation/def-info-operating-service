@@ -6,9 +6,9 @@ const typeDef = gql`
     getEnvironmentTime: TimeDate
   }
 
-  extend type Subscription {
-    weatherStatusUpdated: WeatherStatus
-  }
+  # extend type Subscription {
+  #   weatherStatusUpdated: WeatherStatus
+  # }
 
   type WeatherStatus {
     wind: WindStatus!
