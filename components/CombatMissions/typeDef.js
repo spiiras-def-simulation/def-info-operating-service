@@ -6,17 +6,20 @@ const typeDef = gql`
     getCombatMission(id: ID!): CombatMission
   }
 
+  extend type Mutation {
+    addCombatMission(input: JSON!): CombatMission
+    removeCombatMission(id: ID!): String
+  }
+
   type CombatMission {
     id: ID!
     name: String
-    stage: Int!
-    group: CombatGroup!
-  }
-
-  type CombatGroup {
-    id: ID!
-    leading: CombatUnit!
-    slaves: [CombatUnit]!
+    directiveTime: Int
+    numLaunch: Int
+    timeLaunch: Int
+    scoutingArea: JSON
+    dumpAmmoPoint: JSON
+    landingPoint: JSON
   }
 `;
 

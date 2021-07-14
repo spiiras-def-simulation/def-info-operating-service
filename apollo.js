@@ -7,6 +7,8 @@ const Environment = require('./components/Environment');
 const CombatUnits = require('./components/CombatUnits');
 const CombatUnitStatus = require('./components/CombatUnitStatus');
 const CombatUnitPosition = require('./components/CombatUnitPosition');
+const CombatMissions = require('./components/CombatMissions');
+const TargetObjects = require('./components/TargetObjects');
 
 const CombatMissionsDataModel = require('./dataSources/CombatMissionsDataModel');
 const EnvironmentDataModel = require('./dataSources/EnvironmentDataModel');
@@ -15,6 +17,7 @@ const CombatUnitsDataModel = require('./dataSources/CombatUnitsDataModel');
 
 const typeDefs = gql`
   type Query
+  type Mutation
   type Subscription
 
   type Point2 {
@@ -71,6 +74,8 @@ module.exports = {
         CombatUnits.typeDef,
         CombatUnitStatus.typeDef,
         CombatUnitPosition.typeDef,
+        CombatMissions.typeDef,
+        TargetObjects.typeDef,
       ],
       resolvers: [
         resolvers,
@@ -78,10 +83,18 @@ module.exports = {
         CombatUnits.resolvers,
         CombatUnitStatus.resolvers,
         CombatUnitPosition.resolvers,
+        CombatMissions.resolvers,
+        TargetObjects.resolvers,
       ],
-      dataSources: () => ({
-        ...dataModels,
-      }),
+      context: (context) => {
+        if (context) {
+          return {
+            models: dataModels,
+            ...context,
+          };
+        }
+        return context;
+      },
     });
 
     server.applyMiddleware({ app });

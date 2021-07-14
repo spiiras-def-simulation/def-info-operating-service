@@ -5,9 +5,16 @@ const typeDef = gql`
     getCombatUnits: [CombatUnit]!
     getCombatUnit(id: ID!): CombatUnit
     getCombatUnitTypes: [CombatUnitType]!
-    getCombatUnitType: CombatUnitType
+    getCombatUnitType(id: ID!): CombatUnitType
     getCombatUnitRoles: [CombatUnitRole]!
-    getCombatUnitRole: CombatUnitRole
+    getCombatUnitRole(id: ID!): CombatUnitRole
+    getCombatUnitWeaponTypes: [CombatUnitWeaponType]!
+    getCombatUnitWeaponType(id: ID!): CombatUnitWeaponType
+  }
+
+  extend type Mutation {
+    addUnitType(input: JSON!): CombatUnitType
+    removeUnitType(id: ID!): String
   }
 
   type CombatUnit {
@@ -20,6 +27,7 @@ const typeDef = gql`
     rangeVelocity: Range
     rangeVelocityUpVertical: Range
     rangeVelocityDownVertical: Range
+    cargoType: ID!
     maxCargoQuantity: Range
     maxFuelConsume: Range
     maxTurningRadius: Range
@@ -29,6 +37,14 @@ const typeDef = gql`
     id: ID!
     name: String!
     unitType: CombatUnitType
+  }
+
+  type CombatUnitWeaponType {
+    id: String!
+    name: String!
+    hRange: Float
+    vRange: Float
+    rapidity: Float
   }
 `;
 
