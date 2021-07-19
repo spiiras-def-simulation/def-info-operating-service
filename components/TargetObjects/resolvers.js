@@ -15,13 +15,32 @@ module.exports = {
       },
     },
     Mutation: {
+      addTargetObject: async (_, { id }, { models: { targetObjectsData } }) => {
+        const result = await targetObjectsData.addObject(id);
+        return result || null;
+      },
+      removeTargetObject: async (_, { id }, { models: { targetObjectsData } }) => {
+        const result = await targetObjectsData.removeObject(id);
+        return result || null;
+      },
       addTargetObjectsToMap: async (_, { input }, { models: { targetObjectsData } }) => {
-        const result = await targetObjectsData.addTargetObjectsToMap(input);
+        const result = await targetObjectsData.addObjectsToMap(input);
 
         return !!result;
       },
     },
     Subscription: {
+      onUpdateTargetObjectsList: {
+        subscribe: (_, __, { models: { targetObjectsData } }) => {
+          const pubsub = targetObjectsData.subscribeTargetObjects();
+          return pubsub.asyncIterator('co_statuses');
+        },
+        resolve: async (_, __, { models: { targetObjectsData } }) => {
+          const data = await targetObjectsData.getObjects();
+
+          return data || [];
+        },
+      },
       onUpdateTargetObjectPosition: {
         subscribe: withFilter(
           (_, __, { models: { targetObjectsData } }) => {
@@ -29,12 +48,11 @@ module.exports = {
             return pubsub.asyncIterator('geoposition');
           },
           (payload, params) => {
-            return !!payload[params.id];
+            return payload.id === params.id;
           },
         ),
         resolve: (payload, { id }) => {
-          const target = payload[id];
-          const { position: coordinates } = target;
+          const { position: coordinates } = payload;
           return {
             id,
             coordinates,
