@@ -5,8 +5,6 @@ const config = require('config');
 
 const Environment = require('./components/Environment');
 const CombatUnits = require('./components/CombatUnits');
-const CombatUnitStatus = require('./components/CombatUnitStatus');
-const CombatUnitPosition = require('./components/CombatUnitPosition');
 const CombatMissions = require('./components/CombatMissions');
 const TargetObjects = require('./components/TargetObjects');
 
@@ -72,8 +70,6 @@ module.exports = {
         typeDefs,
         Environment.typeDef,
         CombatUnits.typeDef,
-        CombatUnitStatus.typeDef,
-        CombatUnitPosition.typeDef,
         CombatMissions.typeDef,
         TargetObjects.typeDef,
       ],
@@ -81,8 +77,6 @@ module.exports = {
         resolvers,
         Environment.resolvers,
         CombatUnits.resolvers,
-        CombatUnitStatus.resolvers,
-        CombatUnitPosition.resolvers,
         CombatMissions.resolvers,
         TargetObjects.resolvers,
       ],

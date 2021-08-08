@@ -17,6 +17,10 @@ module.exports = {
         const result = await combatMissionsData.addMission(input);
         return result || null;
       },
+      removeCombatMissions: async (_, __, { models: { combatMissionsData } }) => {
+        const result = await combatMissionsData.removeMissions();
+        return result || null;
+      },
       removeCombatMission: async (_, { id }, { models: { combatMissionsData } }) => {
         const result = await combatMissionsData.removeMission(id);
         return result || null;

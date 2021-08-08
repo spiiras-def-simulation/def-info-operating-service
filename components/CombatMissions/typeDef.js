@@ -7,7 +7,8 @@ const typeDef = gql`
   }
 
   extend type Mutation {
-    addCombatMission(input: JSON!): CombatMission
+    addCombatMission(input: JSON!): String
+    removeCombatMissions: Boolean
     removeCombatMission(id: ID!): String
   }
 

@@ -4,26 +4,50 @@ const typeDef = gql`
   extend type Query {
     getCombatUnits: [CombatUnit]!
     getCombatUnit(id: ID!): CombatUnit
+
     getCombatUnitTypes: [CombatUnitType]!
     getCombatUnitType(id: ID!): CombatUnitType
-    getCombatUnitRoles: [CombatUnitRole]!
-    getCombatUnitRole(id: ID!): CombatUnitRole
+
     getCombatUnitWeaponTypes: [CombatUnitWeaponType]!
     getCombatUnitWeaponType(id: ID!): CombatUnitWeaponType
+
+    getCombatUnitRoles: [CombatUnitRole]!
+    getCombatUnitRole(id: ID!): CombatUnitRole
+
+    getCombatUnitRoleTypes: [CombatUnitRoleType]!
   }
 
   extend type Mutation {
-    addUnitType(input: JSON!): CombatUnitType
-    removeUnitType(id: ID!): String
+    addCombatUnit(input: JSON!): CombatUnit
+    removeCombatUnits: Boolean
+    removeCombatUnit(id: ID!): String
+
+    addCombatUnitType(input: JSON!): CombatUnitType
+    removeCombatUnitTypes: Boolean
+    removeCombatUnitType(id: ID!): String
+
+    addCombatUnitRole(input: JSON!): CombatUnitRole
+    removeCombatUnitRoles: Boolean
+    removeCombatUnitRole(id: ID!): String
+
+    addCombatUnitsToMap(input: JSON!): Boolean
   }
 
   type CombatUnit {
     id: ID!
+    tailNumber: String!
+    timePrepare: Float
+    role: CombatUnitRole
+    type: CombatUnitType
+    altitude: Float
+    battery: Float
+    globalPosition: Point3
+    localPosition: Point3
   }
 
   type CombatUnitType {
     id: ID!
-    name: String!
+    name: String
     rangeVelocity: Range
     rangeVelocityUpVertical: Range
     rangeVelocityDownVertical: Range
@@ -33,18 +57,34 @@ const typeDef = gql`
     maxTurningRadius: Range
   }
 
-  type CombatUnitRole {
-    id: ID!
-    name: String!
-    unitType: CombatUnitType
-  }
+  # type CombatUnitTypeInput {
+  #   name: String!
+  #   rangeVelocity: Range!
+  #   rangeVelocityUpVertical: Range!
+  #   rangeVelocityDownVertical: Range!
+  #   cargoType: ID!
+  #   maxCargoQuantity: Range!
+  #   maxFuelConsume: Range!
+  #   maxTurningRadius: Range!
+  # }
 
   type CombatUnitWeaponType {
-    id: String!
-    name: String!
+    id: ID!
+    name: String
     hRange: Float
     vRange: Float
     rapidity: Float
+  }
+
+  type CombatUnitRole {
+    id: ID!
+    name: String
+    unitType: CombatUnitType!
+  }
+
+  type CombatUnitRoleType {
+    id: ID!
+    name: String
   }
 `;
 

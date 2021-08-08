@@ -15,8 +15,6 @@ const unmapObject = (value, map) => {
   Object.entries(map).forEach(([name, key]) => {
     if (value[name]) {
       data[key] = value[name];
-    } else {
-      data[key] = null;
     }
   });
   return data;
