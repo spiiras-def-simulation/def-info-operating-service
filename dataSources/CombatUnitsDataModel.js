@@ -56,7 +56,7 @@ class CombatUnitsDataModel extends DataModel {
     const dataResponse = await this.getData({ queue: queues.GET_UNITS, message: {} });
 
     if (this.checkFailedResponse(dataResponse)) {
-      return [];
+      return null;
     }
 
     return Object.entries(dataResponse).map(([id, value]) => {
@@ -72,6 +72,9 @@ class CombatUnitsDataModel extends DataModel {
     }
 
     const data = mapObject(dataResponse, mapUnit);
+
+    data.detectionRadius = 5.0;
+
     return { id, ...data };
   }
   async addUnit(data) {
@@ -144,7 +147,9 @@ class CombatUnitsDataModel extends DataModel {
       return null;
     }
 
-    return dataResponse.coordinates;
+    const data = { localPosition: dataResponse.coordinates || null };
+
+    return { id, ...data };
   }
   async getUnitGlobalPosition(id) {
     const dataResponse = await this.getData({
@@ -156,8 +161,31 @@ class CombatUnitsDataModel extends DataModel {
       return null;
     }
 
-    const { altitude = null, lattitude = null, longtitude = null } = dataResponse;
-    return { x: lattitude, y: longtitude, z: altitude };
+    const data = {
+      globalPosition: {
+        x: dataResponse.lattitude || null,
+        y: dataResponse.longtitude || null,
+        z: dataResponse.altitude || null,
+      },
+    };
+
+    return { id, ...data };
+  }
+  async getUnitPath(id) {
+    // const dataResponse = await this.getData({
+    //   queue: queues.GET_UNIT_PARAMETER,
+    //   message: { id, param: 'trajectory' },
+    // });
+
+    // if (this.checkFailedResponse(dataResponse)) {
+    //   return null;
+    // }
+
+    // const data = { path: dataResponse.trajectory || null };
+
+    const data = { path: null };
+
+    return { id, ...data };
   }
 
   async addUnitsToMap({ units, location }) {
@@ -348,6 +376,10 @@ class CombatUnitsDataModel extends DataModel {
     const dataResponse = unitRoleTypes;
 
     return dataResponse;
+  }
+
+  subscribeUnitObjects() {
+    return this.subscribe({ name: 'UAV', type: 'topic' });
   }
 
   checkFailedResponse(response) {

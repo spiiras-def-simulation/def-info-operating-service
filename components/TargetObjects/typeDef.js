@@ -15,14 +15,13 @@ const typeDef = gql`
   extend type Subscription {
     onUpdateTargetObjectsList: [TargetObject]
     onUpdateTargetObjectPosition(id: ID!): TargetObject!
-    # targetObjectVelocity(id: ID!): TargetObject!
-    # targetObjectTrajectory(id: ID!): [TargetObject]!
-    # targetObjectWaypoint(id: ID!): TargetObject!
+    onUpdateTargetObjectPath(id: ID!): TargetObject!
   }
 
   type TargetObject {
     id: ID!
     coordinates: Point3
+    path: [Point3]
   }
 `;
 

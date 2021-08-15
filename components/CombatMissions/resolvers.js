@@ -26,5 +26,14 @@ module.exports = {
         return result || null;
       },
     },
+    CombatMission: {
+      uavs: async ({ uavs: unitsGroup }, __, { models: { combatUnitsData } }) => {
+        const units = await combatUnitsData.getUnits();
+
+        const data = units.filter(({ id }) => unitsGroup.includes(id));
+
+        return data || [];
+      },
+    },
   },
 };

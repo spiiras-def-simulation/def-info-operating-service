@@ -9,6 +9,7 @@ const mapObjectParams = {
 const queues = {
   GET_OBJECTS: 'get_co_rpc',
   GET_OBJECTS_POS: 'get_co_pose_rpc',
+  GET_OBJECTS_PATH: 'get_co_trajectory_rpc',
   ADD_OBJECT: 'add_co_rpc',
   REMOVE_OBJECT: 'delete_co_rpc',
   ADD_OBJECTS: 'spawn_co_rpc',
@@ -18,22 +19,38 @@ class TargetObjectsDataModel extends DataModel {
   async getObjects() {
     const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: {} });
 
-    if (!dataResponse || dataResponse.status) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
-    return Object.entries(dataResponse).map(([id]) => ({ id }));
+    return Object.entries(dataResponse).map(([id, value]) => {
+      const data = mapObject(value, mapObjectParams);
+      return { id, ...data };
+    });
   }
   async getObject(id) {
     const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: { id } });
 
-    if (!dataResponse || dataResponse.status) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
-    const posResponse = await this.getData({ queue: queues.GET_OBJECTS_POS, message: { id } });
+    const data = mapObject(dataResponse, mapObjectParams);
+    return { id, ...data };
+  }
+  async getObjectPosition(id) {
+    const dataResponse = await this.getData({ queue: queues.GET_OBJECTS_POS, message: { id } });
 
-    return { id, coordinates: posResponse ? posResponse.position : null };
+    if (this.checkFailedResponse(dataResponse)) return null;
+
+    const data = { coordinates: dataResponse || null };
+
+    return { id, ...data };
+  }
+  async getObjectPath(id) {
+    const dataResponse = await this.getData({ queue: queues.GET_OBJECTS_PATH, message: { id } });
+
+    if (this.checkFailedResponse(dataResponse)) return null;
+
+    const data = { path: dataResponse.trajectory };
+
+    return { id, ...data };
   }
 
   async addObject(data) {
@@ -44,9 +61,7 @@ class TargetObjectsDataModel extends DataModel {
       message: { ...input },
     });
 
-    if (!dataResponse || dataResponse.status) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
     return !!dataResponse;
   }
@@ -56,9 +71,7 @@ class TargetObjectsDataModel extends DataModel {
       message: { key: 'id', id },
     });
 
-    if (!dataResponse || dataResponse.status) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
     return !!dataResponse;
   }
@@ -71,18 +84,17 @@ class TargetObjectsDataModel extends DataModel {
       message: { ...input },
     });
 
-    if (!dataResponse || dataResponse.status) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
     return !!dataResponse;
   }
 
   subscribeTargetObjects() {
-    return this.subscribe({
-      name: 'CO',
-      type: 'topic',
-    });
+    return this.subscribe({ name: 'CO', type: 'topic' });
+  }
+
+  checkFailedResponse(response) {
+    return !response || response.status === 'error' || response.status === 'Not found';
   }
 }
 

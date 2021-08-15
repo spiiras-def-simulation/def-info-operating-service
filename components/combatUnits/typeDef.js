@@ -33,6 +33,11 @@ const typeDef = gql`
     addCombatUnitsToMap(input: JSON!): Boolean
   }
 
+  extend type Subscription {
+    onUpdateCombatUnitGlobalPosition(id: ID!): CombatUnit!
+    onUpdateCombatUnitLocalPosition(id: ID!): CombatUnit!
+  }
+
   type CombatUnit {
     id: ID!
     tailNumber: String!
@@ -41,8 +46,10 @@ const typeDef = gql`
     type: CombatUnitType
     altitude: Float
     battery: Float
+    detectionRadius: Float
     globalPosition: Point3
     localPosition: Point3
+    path: [Point2]
   }
 
   type CombatUnitType {

@@ -2,23 +2,6 @@ const DataModel = require('./DataModel');
 
 const { mapObject, unmapObject } = require('./helpers');
 
-// const mockMission = {
-//   id: '1',
-//   directive_time_secs: 11,
-//   time_out_of_launches: 123,
-//   simultaneous_launch_number: 123,
-//   reset_point: 123,
-//   landing_point: 123,
-//   uavs: 123,
-//   payload: 123,
-//   target_type: 123,
-//   dest_poligon: 123,
-//   targets_number: 123,
-//   targets_coords: 123,
-//   time_intervals: 123,
-//   success_level: 123,
-// };
-
 const queues = {
   GET_COMBAT_MISSIONS: 'get_mission_rpc',
   ADD_COMBAT_MISSION: 'add_mission_rpc',
@@ -59,23 +42,21 @@ class CombatMissionsDataModel extends DataModel {
   async getMission(id) {
     const dataResponse = await this.getData({ queue: queues.GET_COMBAT_MISSIONS, message: { id } });
 
-    if (!dataResponse || dataResponse.status) {
+    if (this.checkFailedResponse(dataResponse)) {
       return null;
     }
 
-    const data = {};
-    Object.entries(mapCombatMission).forEach(([name, key]) => {
-      if (dataResponse[key]) {
-        data[name] = dataResponse[key];
-      } else {
-        data[name] = null;
-      }
-    });
+    const data = mapObject(dataResponse, mapCombatMission);
 
-    return {
-      id,
-      ...data,
-    };
+    data.numLaunch = 3;
+    data.landingPoint = { x: 60.42868573770251, y: 57.196174375247814 };
+    data.departurePoint = { x: 60.427966053813364, y: 57.17429784515233 };
+    data.dumpAmmoPoint = { x: 60.41805819775825, y: 57.19308592394023 };
+    data.uavs = ['23', '24', '25'];
+    data.successLevel = 0.98;
+    data.strikeLevel = 0.98;
+
+    return { id, ...data };
   }
 
   async addMission(data) {
@@ -100,7 +81,7 @@ class CombatMissionsDataModel extends DataModel {
       message: { ...input },
     });
 
-    if (!dataResponse || dataResponse.status) {
+    if (this.checkFailedResponse(dataResponse)) {
       return null;
     }
 
@@ -126,7 +107,7 @@ class CombatMissionsDataModel extends DataModel {
       message: { key: 'id', id },
     });
 
-    if (!dataResponse || dataResponse.status) {
+    if (this.checkFailedResponse(dataResponse)) {
       return null;
     }
 

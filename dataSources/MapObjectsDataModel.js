@@ -2,15 +2,27 @@ const DataModel = require('./DataModel');
 
 const { mapObject, unmapObject } = require('./helpers');
 
-const mapMapObject = {};
+const mapMapObject = {
+  type: 'type',
+  coordinates: 'area',
+};
+
+const mapAddedMapObjects = {
+  radarJammingArea: 'rep',
+  radarWarfareArea: 'reb',
+  impassableArea: 'ban',
+};
+
+const queues = {
+  GET_OBJECTS: 'get_uav_regions_rpc',
+  ADD_OBJECTS: 'add_regions_rpc',
+};
 
 class MapObjectsDataModel extends DataModel {
-  async getObjects() {
-    const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: {} });
+  async getObjects(type) {
+    const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: { type } });
 
-    if (this.checkFailedResponse(dataResponse)) {
-      return [];
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapMapObject);
@@ -20,21 +32,17 @@ class MapObjectsDataModel extends DataModel {
   async getObject(id) {
     const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: { id } });
 
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
     const data = mapObject(dataResponse, mapMapObject);
     return { id, ...data };
   }
   async addObject(data) {
-    const input = unmapObject(data, mapMapObject);
+    const input = unmapObject(data, mapAddedMapObjects);
 
-    const dataResponse = await this.getData({ queue: queues.ADD_OBJECT, message: { ...input } });
+    const dataResponse = await this.getData({ queue: queues.ADD_OBJECTS, message: { ...input } });
 
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
     return dataResponse;
   }

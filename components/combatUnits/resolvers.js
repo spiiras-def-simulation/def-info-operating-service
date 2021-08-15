@@ -1,3 +1,5 @@
+const { withFilter } = require('apollo-server-express');
+
 module.exports = {
   resolvers: {
     Query: {
@@ -98,6 +100,39 @@ module.exports = {
       },
     },
 
+    Subscription: {
+      onUpdateCombatUnitGlobalPosition: {
+        subscribe: withFilter(
+          (_, __, { models: { combatUnitsData } }) => {
+            const pubsub = combatUnitsData.subscribeUnitObjects();
+            return pubsub.asyncIterator('geoposition_global');
+          },
+          (payload, params) => {
+            return parseInt(payload.id) === parseInt(params.id);
+          },
+        ),
+        resolve: (payload, { id }) => {
+          const { coordinates: globalPosition } = payload;
+          return { id, globalPosition };
+        },
+      },
+      onUpdateCombatUnitLocalPosition: {
+        subscribe: withFilter(
+          (_, __, { models: { combatUnitsData } }) => {
+            const pubsub = combatUnitsData.subscribeUnitObjects();
+            return pubsub.asyncIterator('geoposition_local');
+          },
+          (payload, params) => {
+            return parseInt(payload.id) === parseInt(params.id);
+          },
+        ),
+        resolve: (payload, { id }) => {
+          const { coordinates: localPosition } = payload;
+          return { id, localPosition };
+        },
+      },
+    },
+
     CombatUnit: {
       role: async ({ role: id }, _, { models: { combatUnitsData } }) => {
         const data = await combatUnitsData.getUnitRole(id);
@@ -119,15 +154,26 @@ module.exports = {
 
         return data || null;
       },
-      globalPosition: async ({ id }, _, { models: { combatUnitsData } }) => {
+      globalPosition: async ({ id, globalPosition = null }, _, { models: { combatUnitsData } }) => {
+        if (globalPosition) return globalPosition;
+
         const data = await combatUnitsData.getUnitGlobalPosition(id);
 
-        return data || null;
+        return (data && data.globalPosition) || null;
       },
-      localPosition: async ({ id }, _, { models: { combatUnitsData } }) => {
+      localPosition: async ({ id, localPosition = null }, _, { models: { combatUnitsData } }) => {
+        if (localPosition) return localPosition;
+
         const data = await combatUnitsData.getUnitLocalPosition(id);
 
-        return data || null;
+        return (data && data.localPosition) || null;
+      },
+      path: async ({ id, path = null }, _, { models: { combatUnitsData } }) => {
+        if (path) return path;
+
+        const data = await combatUnitsData.getUnitPath(id);
+
+        return (data && data.path) || null;
       },
     },
 
