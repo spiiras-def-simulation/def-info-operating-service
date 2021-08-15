@@ -7,22 +7,21 @@ const typeDef = gql`
   }
 
   extend type Mutation {
-    addTargetObject(id: ID!): Boolean
-    removeTargetObject(id: ID!): Boolean
+    addTargetObject(id: ID!): TargetObject
+    removeTargetObject(id: ID!): String
     addTargetObjectsToMap(input: JSON!): Boolean
   }
 
   extend type Subscription {
-    onUpdateTargetObjectsList: [TargetObject]!
+    onUpdateTargetObjectsList: [TargetObject]
     onUpdateTargetObjectPosition(id: ID!): TargetObject!
-    # targetObjectVelocity(id: ID!): TargetObject!
-    # targetObjectTrajectory(id: ID!): [TargetObject]!
-    # targetObjectWaypoint(id: ID!): TargetObject!
+    onUpdateTargetObjectPath(id: ID!): TargetObject!
   }
 
   type TargetObject {
     id: ID!
     coordinates: Point3
+    path: [Point3]
   }
 `;
 

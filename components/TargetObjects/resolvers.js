@@ -14,6 +14,7 @@ module.exports = {
         return data || null;
       },
     },
+
     Mutation: {
       addTargetObject: async (_, { id }, { models: { targetObjectsData } }) => {
         const result = await targetObjectsData.addObject(id);
@@ -29,6 +30,7 @@ module.exports = {
         return !!result;
       },
     },
+
     Subscription: {
       onUpdateTargetObjectsList: {
         subscribe: (_, __, { models: { targetObjectsData } }) => {
@@ -58,6 +60,35 @@ module.exports = {
             coordinates,
           };
         },
+      },
+      onUpdateTargetObjectPath: {
+        subscribe: withFilter(
+          (_, __, { models: { targetObjectsData } }) => {
+            const pubsub = targetObjectsData.subscribeTargetObjects();
+            return pubsub.asyncIterator('trajectory');
+          },
+          (payload, params) => {
+            return payload.id === params.id;
+          },
+        ),
+        resolve: async (_, { id }, { models: { targetObjectsData } }) => {
+          const data = await targetObjectsData.getObjectPath(id);
+
+          return { id, path: (data && data.path) || null };
+        },
+      },
+    },
+
+    TargetObject: {
+      coordinates: async ({ id }, _, { models: { targetObjectsData } }) => {
+        const data = await targetObjectsData.getObjectPosition(id);
+
+        return (data && data.coordinates) || null;
+      },
+      path: async ({ id }, _, { models: { targetObjectsData } }) => {
+        const data = await targetObjectsData.getObjectPath(id);
+
+        return (data && data.path) || null;
       },
     },
   },

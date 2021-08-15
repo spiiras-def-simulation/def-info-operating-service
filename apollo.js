@@ -5,15 +5,15 @@ const config = require('config');
 
 const Environment = require('./components/Environment');
 const CombatUnits = require('./components/CombatUnits');
-const CombatUnitStatus = require('./components/CombatUnitStatus');
-const CombatUnitPosition = require('./components/CombatUnitPosition');
 const CombatMissions = require('./components/CombatMissions');
 const TargetObjects = require('./components/TargetObjects');
+const MapObjects = require('./components/MapObjects');
 
 const CombatMissionsDataModel = require('./dataSources/CombatMissionsDataModel');
 const EnvironmentDataModel = require('./dataSources/EnvironmentDataModel');
 const TargetObjectsDataModel = require('./dataSources/TargetObjectsDataModel');
 const CombatUnitsDataModel = require('./dataSources/CombatUnitsDataModel');
+const MapObjectsDataModel = require('./dataSources/MapObjectsDataModel');
 
 const typeDefs = gql`
   type Query
@@ -59,6 +59,7 @@ module.exports = {
       environmentData: new EnvironmentDataModel({ connection: config.amqp.connection }),
       targetObjectsData: new TargetObjectsDataModel({ connection: config.amqp.connection }),
       combatUnitsData: new CombatUnitsDataModel({ connection: config.amqp.connection }),
+      mapObjectsData: new MapObjectsDataModel({ connection: config.amqp.connection }),
     };
 
     Object.values(dataModels).forEach((model) =>
@@ -72,19 +73,17 @@ module.exports = {
         typeDefs,
         Environment.typeDef,
         CombatUnits.typeDef,
-        CombatUnitStatus.typeDef,
-        CombatUnitPosition.typeDef,
         CombatMissions.typeDef,
         TargetObjects.typeDef,
+        MapObjects.typeDef,
       ],
       resolvers: [
         resolvers,
         Environment.resolvers,
         CombatUnits.resolvers,
-        CombatUnitStatus.resolvers,
-        CombatUnitPosition.resolvers,
         CombatMissions.resolvers,
         TargetObjects.resolvers,
+        MapObjects.resolvers,
       ],
       context: (context) => {
         if (context) {

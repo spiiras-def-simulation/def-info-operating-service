@@ -1,20 +1,6 @@
 const DataModel = require('./DataModel');
 
-const mockMission = {
-  id: '1',
-  directive_time_secs: 11,
-  time_out_of_launches: 123,
-  simultaneous_launch_number: 123,
-  reset_point: 123,
-  landing_point: 123,
-  uavs: 123,
-  payload: 123,
-  target_type: 123,
-  dest_poligon: 123,
-  targets_number: 123,
-  targets_coords: 123,
-  time_intervals: 123,
-};
+const { mapObject, unmapObject } = require('./helpers');
 
 const queues = {
   GET_COMBAT_MISSIONS: 'get_mission_rpc',
@@ -26,7 +12,7 @@ const mapCombatMission = {
   directiveTime: 'directive_time_secs',
   numLaunch: 'simultaneous_launch_number',
   timeLaunch: 'time_out_of_launches',
-  scoutingArea: 'dest_poligon',
+  scoutingArea: 'destination',
   dumpAmmoPoint: 'reset_point',
   departurePoint: 'departure_point',
   landingPoint: 'landing_point',
@@ -36,75 +22,83 @@ const mapCombatMission = {
   targetsNumber: 'targets_number',
   targetsCoords: 'targets_coords',
   timeIntervals: 'time_intervals',
+  successLevel: 'success_level',
 };
 
 class CombatMissionsDataModel extends DataModel {
   async getMissions() {
     const dataResponse = await this.getData({ queue: queues.GET_COMBAT_MISSIONS, message: {} });
 
-    if (!dataResponse) {
-      return null;
+    if (this.checkFailedResponse(dataResponse)) {
+      return [];
     }
 
-    return Object.entries(dataResponse).map(([id, mission]) => {
-      const data = {};
-      Object.entries(mapCombatMission).forEach(([name, key]) => {
-        if (mission[key]) {
-          data[name] = mission[key];
-        } else {
-          data[name] = null;
-        }
-      });
-
-      return {
-        id,
-        ...data,
-      };
+    return Object.entries(dataResponse).map(([id, value]) => {
+      const data = mapObject(value, mapCombatMission);
+      return { id, ...data };
     });
   }
 
   async getMission(id) {
     const dataResponse = await this.getData({ queue: queues.GET_COMBAT_MISSIONS, message: { id } });
 
-    if (!dataResponse || dataResponse.status) {
+    if (this.checkFailedResponse(dataResponse)) {
       return null;
     }
 
-    const data = {};
-    Object.entries(mapCombatMission).forEach(([name, key]) => {
-      if (dataResponse[key]) {
-        data[name] = dataResponse[key];
-      } else {
-        data[name] = null;
-      }
-    });
+    const data = mapObject(dataResponse, mapCombatMission);
 
-    return {
-      id,
-      ...data,
-    };
+    data.numLaunch = 3;
+    data.landingPoint = { x: 60.42868573770251, y: 57.196174375247814 };
+    data.departurePoint = { x: 60.427966053813364, y: 57.17429784515233 };
+    data.dumpAmmoPoint = { x: 60.41805819775825, y: 57.19308592394023 };
+    data.uavs = ['23', '24', '25'];
+    data.successLevel = 0.98;
+    data.strikeLevel = 0.98;
+
+    return { id, ...data };
   }
 
-  async addMission(mission) {
-    const input = {};
-    Object.entries(mapCombatMission).forEach(([name, key]) => {
-      if (mission[name]) {
-        input[key] = mission[name];
-      } else {
-        input[key] = null;
-      }
-    });
+  async addMission(data) {
+    const input = unmapObject(
+      {
+        targetType: '1',
+        timeIntervals: {
+          start: 0,
+          order: 2400,
+          marching: 2000,
+          attack: 300,
+          reset: 500,
+          returning: 2000,
+        },
+        ...data,
+      },
+      mapCombatMission,
+    );
 
     const dataResponse = await this.getData({
       queue: queues.ADD_COMBAT_MISSION,
       message: { ...input },
     });
 
-    if (!dataResponse || dataResponse.status) {
+    if (this.checkFailedResponse(dataResponse)) {
       return null;
     }
 
     return dataResponse;
+  }
+
+  async removeMissions() {
+    const dataResponse = await this.getData({
+      queue: queues.REMOVE_COMBAT_MISSION,
+      message: { key: 'table' },
+    });
+
+    if (this.checkFailedResponse(dataResponse)) {
+      return null;
+    }
+
+    return true;
   }
 
   async removeMission(id) {
@@ -113,11 +107,15 @@ class CombatMissionsDataModel extends DataModel {
       message: { key: 'id', id },
     });
 
-    if (!dataResponse || dataResponse.status) {
+    if (this.checkFailedResponse(dataResponse)) {
       return null;
     }
 
     return dataResponse;
+  }
+
+  checkFailedResponse(response) {
+    return !response || response.status === 'error' || response.status === 'Not found';
   }
 }
 
