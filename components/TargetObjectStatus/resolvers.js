@@ -1,11 +1,11 @@
 module.exports = {
   resolvers: {
-    CombatUnitStatus: {
-      REGISTRED: 'registered',
+    TargetObjectStatus: {
+      REGISTRED: 'registred',
       LAUNCHED: 'launched',
       LOST: 'lost',
+      DESTROYED: 'destroyed',
       STOPPED: 'stopped',
-      PREPARE_TO_STRIKE: 'prepare_to_strike',
     },
   },
 };

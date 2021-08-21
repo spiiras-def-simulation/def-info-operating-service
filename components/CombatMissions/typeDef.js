@@ -10,6 +10,7 @@ const typeDef = gql`
     addCombatMission(input: JSON!): String
     removeCombatMissions: Boolean
     removeCombatMission(id: ID!): String
+    startCombatMission(id: ID!): Boolean
   }
 
   type CombatMission {
@@ -23,11 +24,13 @@ const typeDef = gql`
     strikeLevel: Float
 
     scoutingArea: JSON
-    dumpAmmoPoint: JSON
-    departurePoint: JSON
-    landingPoint: JSON
+    dumpAmmoPoint: Point2
+    departurePoint: Point2
+    landingPoint: Point2
 
     uavs: [CombatUnit]!
+
+    accomplished: Boolean
   }
 `;
 

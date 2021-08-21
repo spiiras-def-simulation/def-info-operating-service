@@ -1,16 +1,16 @@
 const { gql } = require('apollo-server-express');
 
 const typeDef = gql`
-  extend type CombatUnit {
-    status: CombatUnitStatus
+  extend type TargetObject {
+    status: TargetObjectStatus
   }
 
-  enum CombatUnitStatus {
+  enum TargetObjectStatus {
     REGISTRED
     LAUNCHED
     LOST
+    DESTROYED
     STOPPED
-    PREPARE_TO_STRIKE
   }
 `;
 

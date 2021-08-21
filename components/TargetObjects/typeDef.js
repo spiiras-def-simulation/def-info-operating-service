@@ -20,6 +20,7 @@ const typeDef = gql`
 
   type TargetObject {
     id: ID!
+    type: String
     coordinates: Point3
     path: [Point3]
   }

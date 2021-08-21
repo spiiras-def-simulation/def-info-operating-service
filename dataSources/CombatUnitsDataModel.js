@@ -2,10 +2,100 @@ const DataModel = require('./DataModel');
 
 const { mapObject, unmapObject } = require('./helpers');
 
+const testUnitsData = {
+  23: {
+    status: '',
+    tail_number: '1',
+    fuel_resource: 30,
+    time_for_prepare: 30,
+    detection_radius: 1000,
+    uav_type: '1',
+    uav_role: '1',
+  },
+  24: {
+    status: '',
+    tail_number: '1',
+    fuel_resource: 30,
+    time_for_prepare: 30,
+    detection_radius: 1000,
+    uav_type: '1',
+    uav_role: '2',
+  },
+  25: {
+    status: '',
+    tail_number: '1',
+    fuel_resource: 30,
+    time_for_prepare: 30,
+    uav_type: '1',
+    uav_role: '2',
+  },
+  26: {
+    status: '',
+    tail_number: '1',
+    fuel_resource: 30,
+    time_for_prepare: 30,
+    uav_type: '1',
+    uav_role: '1',
+  },
+};
+
+const testUnitParamsData = {
+  23: {
+    globalPosition: {
+      lattitude: 42.69442249442193,
+      longtitude: 45.171403884887695,
+      altitude: 1200,
+    },
+  },
+  24: {
+    globalPosition: {
+      lattitude: 42.69940592189281,
+      longtitude: 45.17801284790039,
+      altitude: 1200,
+    },
+  },
+  25: {
+    globalPosition: {
+      lattitude: 42.69934284303157,
+      longtitude: 45.16779899597167,
+      altitude: 1200,
+    },
+  },
+  26: {
+    globalPosition: {
+      lattitude: 42.69934284303157,
+      longtitude: 45.16779899597167,
+      altitude: 1200,
+    },
+  },
+};
+
+const testUnitTypesData = {
+  1: {
+    name: 'Орлан-Р',
+  },
+  2: {
+    name: 'Орлан-У',
+  },
+};
+
+const testUnitRolesData = {
+  1: {
+    name: 'Разведчик',
+    uav_type: '1',
+  },
+  2: {
+    name: 'Ударный',
+    uav_type: '2',
+  },
+};
+
 const mapUnit = {
+  status: 'status',
   fuelResource: 'fuel_resource',
   tailNumber: 'tail_number',
   timePrepare: 'time_for_prepare',
+  detectionRadius: 'detection_radius',
   type: 'uav_type',
   role: 'uav_role',
 };
@@ -18,6 +108,7 @@ const mapUnitType = {
   cargoType: 'cargo_type',
   maxCargoQuantity: 'cargo_quantity',
   maxFuelConsume: 'fuel_consume',
+  maxFuelResourse: 'fuel_resource',
   maxTurningRadius: 'radius_of_turn',
 };
 
@@ -54,10 +145,9 @@ const queues = {
 class CombatUnitsDataModel extends DataModel {
   async getUnits() {
     const dataResponse = await this.getData({ queue: queues.GET_UNITS, message: {} });
+    // const dataResponse = testUnitsData;
 
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return [];
 
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapUnit);
@@ -66,15 +156,14 @@ class CombatUnitsDataModel extends DataModel {
   }
   async getUnit(id) {
     const dataResponse = await this.getData({ queue: queues.GET_UNITS, message: { id } });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    // const [dataResponse] = Object.entries(testUnitsData)
+    //   .filter(([unit]) => unit === id)
+    //   .map(([id, data]) => ({
+    //     id,
+    //     ...data,
+    //   }));
+    if (this.checkFailedResponse(dataResponse)) return null;
     const data = mapObject(dataResponse, mapUnit);
-
-    data.detectionRadius = 5.0;
-
     return { id, ...data };
   }
   async addUnit(data) {
@@ -152,15 +241,10 @@ class CombatUnitsDataModel extends DataModel {
     return { id, ...data };
   }
   async getUnitGlobalPosition(id) {
-    const dataResponse = await this.getData({
-      queue: queues.GET_UNIT_PARAMETER,
-      message: { id, param: 'global_pose' },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    // const input = { id, param: 'global_pose' };
+    // const dataResponse = await this.getData({ queue: queues.GET_UNIT_PARAMETER, message: input });
+    const dataResponse = testUnitParamsData[id].globalPosition;
+    if (this.checkFailedResponse(dataResponse)) return null;
     const data = {
       globalPosition: {
         x: dataResponse.lattitude || null,
@@ -168,7 +252,6 @@ class CombatUnitsDataModel extends DataModel {
         z: dataResponse.altitude || null,
       },
     };
-
     return { id, ...data };
   }
   async getUnitPath(id) {
@@ -188,19 +271,21 @@ class CombatUnitsDataModel extends DataModel {
     return { id, ...data };
   }
 
-  async addUnitsToMap({ units, location }) {
+  async addUnitsToMap({ units }) {
     const existUnits = await this.getUnits();
     const addedUnitGroups = await Promise.all(
       units.map(({ role, number }) =>
         Promise.all(
-          Array(number).map((_, order) =>
-            this.addUnit({
-              role,
-              tailNumber: existUnits.length + order + 1,
-              fuelResource: 10,
-              timePrepare: 30,
-            }),
-          ),
+          Array(number)
+            .fill()
+            .map((_, order) =>
+              this.addUnit({
+                role,
+                tailNumber: existUnits.length + order + 1,
+                fuelResource: 16,
+                timePrepare: 30,
+              }),
+            ),
         ),
       ),
     );
@@ -221,11 +306,8 @@ class CombatUnitsDataModel extends DataModel {
 
   async getUnitTypes() {
     const dataResponse = await this.getData({ queue: queues.GET_UNIT_TYPES, message: {} });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return [];
-    }
-
+    // const dataResponse = testUnitTypesData;
+    if (this.checkFailedResponse(dataResponse)) return [];
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapUnitType);
       return { id, ...data };
@@ -233,57 +315,40 @@ class CombatUnitsDataModel extends DataModel {
   }
   async getUnitType(id) {
     const dataResponse = await this.getData({ queue: queues.GET_UNIT_TYPES, message: { id } });
+    // const [dataResponse] = Object.entries(testUnitTypesData)
+    //   .filter(([type]) => type === id)
+    //   .map(([id, data]) => ({
+    //     id,
+    //     ...data,
+    //   }));
 
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
+    if (this.checkFailedResponse(dataResponse)) return null;
 
     const data = mapObject(dataResponse, mapUnitType);
     return { id, ...data };
   }
   async addUnitType(data) {
     const input = unmapObject(data, mapUnitType);
-
     const dataResponse = await this.getData({ queue: queues.ADD_UNIT_TYPE, message: { ...input } });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    if (this.checkFailedResponse(dataResponse)) return null;
     return dataResponse;
   }
   async removeUnitTypes() {
-    const dataResponse = await this.getData({
-      queue: queues.REMOVE_UNIT,
-      message: { key: 'table' },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    const input = { key: 'table' };
+    const dataResponse = await this.getData({ queue: queues.REMOVE_UNIT, message: input });
+    if (this.checkFailedResponse(dataResponse)) return null;
     return true;
   }
   async removeUnitType(id) {
-    const dataResponse = await this.getData({
-      queue: queues.REMOVE_UNIT_TYPE,
-      message: { key: 'id', id },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
-    return dataResponse;
+    const input = { key: 'id', id };
+    const dataResponse = await this.getData({ queue: queues.REMOVE_UNIT_TYPE, message: input });
+    if (this.checkFailedResponse(dataResponse)) return null;
+    return id;
   }
 
   async getUnitWeaponTypes() {
     const dataResponse = await this.getData({ queue: queues.GET_UNIT_WEAPON_TYPES, message: {} });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return [];
-    }
-
+    if (this.checkFailedResponse(dataResponse)) return [];
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapUnitWeaponType);
       return { id, ...data };
@@ -294,76 +359,48 @@ class CombatUnitsDataModel extends DataModel {
       queue: queues.GET_UNIT_WEAPON_TYPES,
       message: { id },
     });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    if (this.checkFailedResponse(dataResponse)) return null;
     const data = mapObject(dataResponse, mapUnitWeaponType);
     return { id, ...data };
   }
 
   async getUnitRoles() {
     const dataResponse = await this.getData({ queue: queues.GET_UNIT_ROLES, message: {} });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return [];
-    }
-
+    // const dataResponse = testUnitRolesData;
+    if (this.checkFailedResponse(dataResponse)) return [];
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapUnitRole);
       return { id, ...data };
     });
   }
   async getUnitRole(id) {
-    const dataResponse = await this.getData({
-      queue: queues.GET_UNIT_ROLES,
-      message: { id },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    const dataResponse = await this.getData({ queue: queues.GET_UNIT_ROLES, message: { id } });
+    // const [dataResponse] = Object.entries(testUnitRolesData)
+    //   .filter(([role]) => role === id)
+    //   .map(([id, data]) => ({
+    //     id,
+    //     ...data,
+    //   }));
+    if (this.checkFailedResponse(dataResponse)) return null;
     const data = mapObject(dataResponse, mapUnitRole);
     return { id, ...data };
   }
   async addUnitRole(data) {
     const input = unmapObject(data, mapUnitRole);
-
-    const dataResponse = await this.getData({
-      queue: queues.ADD_UNIT_ROLE,
-      message: { ...input },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    const dataResponse = await this.getData({ queue: queues.ADD_UNIT_ROLE, message: input });
+    if (this.checkFailedResponse(dataResponse)) return null;
     return dataResponse;
   }
   async removeUnitRoles() {
-    const dataResponse = await this.getData({
-      queue: queues.REMOVE_UNIT,
-      message: { key: 'table' },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    const input = { key: 'table' };
+    const dataResponse = await this.getData({ queue: queues.REMOVE_UNIT, message: input });
+    if (this.checkFailedResponse(dataResponse)) return null;
     return true;
   }
   async removeUnitRole(id) {
-    const dataResponse = await this.getData({
-      queue: queues.REMOVE_UNIT_ROLE,
-      message: { key: 'id', id },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    const input = { key: 'id', id };
+    const dataResponse = await this.getData({ queue: queues.REMOVE_UNIT_ROLE, message: input });
+    if (this.checkFailedResponse(dataResponse)) return null;
     return dataResponse.id;
   }
 
@@ -372,9 +409,7 @@ class CombatUnitsDataModel extends DataModel {
       { id: '1', name: 'Разведчик' },
       { id: '2', name: 'Ударный' },
     ];
-
     const dataResponse = unitRoleTypes;
-
     return dataResponse;
   }
 
@@ -383,7 +418,12 @@ class CombatUnitsDataModel extends DataModel {
   }
 
   checkFailedResponse(response) {
-    return !response || response.status === 'error' || response.status === 'Not found';
+    return (
+      !response ||
+      response.status === 'error' ||
+      response.status === 'Not found' ||
+      response.status === 'failed'
+    );
   }
 }
 

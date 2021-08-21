@@ -3,7 +3,7 @@ const { gql } = require('apollo-server-express');
 const typeDef = gql`
   extend type Query {
     getWeatherStatus: WeatherStatus
-    getEnvironmentTime: TimeDate
+    getEnvironmentTime: DateTime
   }
 
   # extend type Subscription {

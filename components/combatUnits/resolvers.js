@@ -136,43 +136,35 @@ module.exports = {
     CombatUnit: {
       role: async ({ role: id }, _, { models: { combatUnitsData } }) => {
         const data = await combatUnitsData.getUnitRole(id);
-
         return data || null;
       },
       type: async ({ type: id }, _, { models: { combatUnitsData } }) => {
         const data = await combatUnitsData.getUnitType(id);
-
         return data || null;
       },
-      altitude: async ({ id }, _, { models: { combatUnitsData } }) => {
+      altitude: async ({ id, altitude }, _, { models: { combatUnitsData } }) => {
+        if (altitude) return altitude;
         const data = await combatUnitsData.getUnitAltitude(id);
-
         return data || null;
       },
-      battery: async ({ id }, _, { models: { combatUnitsData } }) => {
+      battery: async ({ id, battery }, _, { models: { combatUnitsData } }) => {
+        if (battery) return battery;
         const data = await combatUnitsData.getUnitBattery(id);
-
         return data || null;
       },
-      globalPosition: async ({ id, globalPosition = null }, _, { models: { combatUnitsData } }) => {
+      globalPosition: async ({ id, globalPosition }, _, { models: { combatUnitsData } }) => {
         if (globalPosition) return globalPosition;
-
         const data = await combatUnitsData.getUnitGlobalPosition(id);
-
         return (data && data.globalPosition) || null;
       },
-      localPosition: async ({ id, localPosition = null }, _, { models: { combatUnitsData } }) => {
+      localPosition: async ({ id, localPosition }, _, { models: { combatUnitsData } }) => {
         if (localPosition) return localPosition;
-
         const data = await combatUnitsData.getUnitLocalPosition(id);
-
         return (data && data.localPosition) || null;
       },
-      path: async ({ id, path = null }, _, { models: { combatUnitsData } }) => {
+      path: async ({ id, path }, _, { models: { combatUnitsData } }) => {
         if (path) return path;
-
         const data = await combatUnitsData.getUnitPath(id);
-
         return (data && data.path) || null;
       },
     },

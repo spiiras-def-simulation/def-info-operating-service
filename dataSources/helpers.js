@@ -13,7 +13,7 @@ const mapObject = (value, map) => {
 const unmapObject = (value, map) => {
   const data = {};
   Object.entries(map).forEach(([name, key]) => {
-    if (value[name]) {
+    if (value[name] !== undefined) {
       data[key] = value[name];
     }
   });

@@ -1,0 +1,47 @@
+{
+  "directive_time_secs": 10000,
+  "simultaneous_launch_number": 5,
+  "time_out_of_launches": 30,
+  "destination": {
+    "type": "Feature",
+    "properties": {},
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [42.55468, 45.18663],
+          [42.60618, 45.19438],
+          [42.68137, 45.17865],
+          [42.68171, 45.14161],
+          [42.62644, 45.12635],
+          [42.57288, 45.14234],
+          [42.55468, 45.18663]
+        ]
+      ]
+    }
+  },
+  "reset_point": {
+    "x": 42.558644041066486,
+    "y": 45.22590637207031
+  },
+  "departure_point": {
+    "x": 42.71019146477647,
+    "y": 45.17578125
+  },
+  "landing_point": {
+    "x": 42.71372316507779,
+    "y": 45.130462646484375
+  },
+  "uavs": ["48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"],
+  "target_type": "1",
+  "targets_number": 10,
+  "time_intervals": {
+    "start": 0,
+    "order": 2400,
+    "marching": 2000,
+    "attack": 300,
+    "reset": 500,
+    "returning": 2000
+  },
+  "success_level": 0.9
+}

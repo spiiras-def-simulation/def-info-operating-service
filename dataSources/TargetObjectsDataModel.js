@@ -2,7 +2,37 @@ const DataModel = require('./DataModel');
 
 const { mapObject, unmapObject } = require('./helpers');
 
+const TargetObjectStatus = {
+  REGISTRED: 'registred',
+  LAUNCHED: 'launched',
+  LOST: 'lost',
+  DESTROYED: 'destroyed',
+  STOPPED: 'stopped',
+};
+
+const testTargetObjectsData = {
+  1: {
+    status: TargetObjectStatus.LAUNCHED,
+  },
+  2: {
+    status: TargetObjectStatus.LAUNCHED,
+  },
+  3: {
+    status: TargetObjectStatus.LAUNCHED,
+  },
+  4: {
+    status: TargetObjectStatus.LAUNCHED,
+  },
+  5: {
+    status: TargetObjectStatus.LAUNCHED,
+  },
+  6: {
+    status: TargetObjectStatus.LAUNCHED,
+  },
+};
+
 const mapObjectParams = {
+  status: 'status',
   type: 'co_type',
 };
 
