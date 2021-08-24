@@ -4,12 +4,14 @@ const typeDef = gql`
   extend type Query {
     getTargetObjects: [TargetObject]!
     getTargetObject(id: ID!): TargetObject
+    getMissionTargetObjects: [TargetObject]
   }
 
   extend type Mutation {
     addTargetObject(id: ID!): TargetObject
     removeTargetObject(id: ID!): String
     addTargetObjectsToMap(input: JSON!): Boolean
+    loadMissionTargetObjects: [TargetObject]
   }
 
   extend type Subscription {
@@ -23,6 +25,7 @@ const typeDef = gql`
     type: String
     coordinates: Point3
     path: [Point3]
+    image: String
   }
 `;
 

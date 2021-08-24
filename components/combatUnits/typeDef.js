@@ -49,6 +49,7 @@ const typeDef = gql`
     detectionRadius: Float
     globalPosition: Point3
     localPosition: Point3
+    fuelResource: Int
     path: [Point2]
   }
 

@@ -5,13 +5,15 @@ module.exports = {
     Query: {
       getTargetObjects: async (_, __, { models: { targetObjectsData } }) => {
         const data = await targetObjectsData.getObjects();
-
         return data || [];
       },
       getTargetObject: async (_, { id }, { models: { targetObjectsData } }) => {
         const data = await targetObjectsData.getObject(id);
-
         return data || null;
+      },
+      getMissionTargetObjects: async (_, __, { models: { targetObjectsData } }) => {
+        const data = await targetObjectsData.getMissionObjects();
+        return data || [];
       },
     },
 
@@ -26,8 +28,11 @@ module.exports = {
       },
       addTargetObjectsToMap: async (_, { input }, { models: { targetObjectsData } }) => {
         const result = await targetObjectsData.addObjectsToMap(input);
-
         return !!result;
+      },
+      loadMissionTargetObjects: async (_, __, { models: { targetObjectsData } }) => {
+        const data = await targetObjectsData.getMissionObjects();
+        return data || [];
       },
     },
 
@@ -39,7 +44,6 @@ module.exports = {
         },
         resolve: async (_, __, { models: { targetObjectsData } }) => {
           const data = await targetObjectsData.getObjects();
-
           return data || [];
         },
       },
@@ -73,22 +77,26 @@ module.exports = {
         ),
         resolve: async (_, { id }, { models: { targetObjectsData } }) => {
           const data = await targetObjectsData.getObjectPath(id);
-
           return { id, path: (data && data.path) || null };
         },
       },
     },
 
     TargetObject: {
-      coordinates: async ({ id }, _, { models: { targetObjectsData } }) => {
+      coordinates: async ({ id, coordinates }, _, { models: { targetObjectsData } }) => {
+        if (coordinates) return coordinates;
         const data = await targetObjectsData.getObjectPosition(id);
-
         return (data && data.coordinates) || null;
       },
-      path: async ({ id }, _, { models: { targetObjectsData } }) => {
+      path: async ({ id, path }, _, { models: { targetObjectsData } }) => {
+        if (path) return path;
         const data = await targetObjectsData.getObjectPath(id);
-
         return (data && data.path) || null;
+      },
+      image: async ({ id, image }, _, { models: { targetObjectsData } }) => {
+        if (image) return image;
+        const data = await targetObjectsData.getObjectImage(id);
+        return (data && data.image) || null;
       },
     },
   },

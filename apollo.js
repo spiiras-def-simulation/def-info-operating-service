@@ -24,8 +24,8 @@ const typeDefs = gql`
   type Subscription
 
   type Point2 {
-    x: Float!
-    y: Float!
+    x: Float
+    y: Float
   }
 
   type Point3 {

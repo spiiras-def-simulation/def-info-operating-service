@@ -8,9 +8,11 @@ const typeDef = gql`
 
   extend type Mutation {
     addCombatMission(input: JSON!): String
+    recalculateCombatMission(id: ID!, input: JSON!): Boolean
     removeCombatMissions: Boolean
     removeCombatMission(id: ID!): String
     startCombatMission(id: ID!): Boolean
+    confirmMissionAttackTarget(id: ID!, target: ID!): [CombatUnit]
   }
 
   type CombatMission {
@@ -29,6 +31,9 @@ const typeDef = gql`
     landingPoint: Point2
 
     uavs: [CombatUnit]!
+
+    targetNumber: Int
+    targetCoordinates: [Point2]
 
     accomplished: Boolean
   }

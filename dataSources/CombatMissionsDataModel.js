@@ -1,6 +1,6 @@
 const DataModel = require('./DataModel');
 
-const { mapObject, unmapObject } = require('./helpers');
+const { mapObject, unmapObject, saveMessageFile } = require('./helpers');
 
 const mapCombatMission = {
   status: 'status',
@@ -15,7 +15,7 @@ const mapCombatMission = {
   payload: 'payload',
   targetType: 'target_type',
   targetsNumber: 'targets_number',
-  targetsCoords: 'targets_coords',
+  targetsCoordinates: 'targets_coords',
   timeIntervals: 'time_intervals',
   successLevel: 'success_level',
   strikeLevel: 'strike_level',
@@ -25,37 +25,30 @@ const mapCombatMission = {
 const addMissionTestData = (data) => ({
   directive_time_secs: 10000,
   simultaneous_launch_number: 3,
-  landing_point: {
-    x: 42.71372316507779,
-    y: 45.130462646484375,
-  },
-  departure_point: {
-    x: 42.71019146477647,
-    y: 45.17578125,
-  },
-  reset_point: {
-    x: 42.558644041066486,
-    y: 45.22590637207031,
-  },
-  destination: {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'Polygon',
-      coordinates: [
-        [
-          [45.18663, 42.55468],
-          [45.19438, 42.60618],
-          [45.17865, 42.68137],
-          [45.14161, 42.68171],
-          [45.12635, 42.62644],
-          [45.14234, 42.57288],
-          [45.18663, 42.55468],
-        ],
-      ],
-    },
-  },
-  uavs: ['23', '24', '25'],
+  landing_point: `{
+    "x": 42.71372316507779,
+    "y": 45.130462646484375
+  }`,
+  start_point: `{
+    "x": 42.71019146477647,
+    "y": 45.17578125
+  }`,
+  reset_point: `{
+    "x": 42.558644041066486,
+    "y": 45.22590637207031
+  }`,
+  destination: `[
+    [
+      [45.18663, 42.55468],
+      [45.19438, 42.60618],
+      [45.17865, 42.68137],
+      [45.14161, 42.68171],
+      [45.12635, 42.62644],
+      [45.14234, 42.57288],
+      [45.18663, 42.55468]
+    ]
+  ]`,
+  uavs: ['0', '1', '2'],
   success_level: 0.98,
   strike_level: 0.98,
   ...data,
@@ -98,7 +91,7 @@ const testMissionsData = {
     accomplished: true,
   }),
   175: addMissionTestData({
-    status: MissionStatus.ANALYSED,
+    status: MissionStatus.LAUNCHED,
     accomplished: true,
   }),
   176: addMissionTestData({
@@ -141,24 +134,24 @@ class CombatMissionsDataModel extends DataModel {
     if (this.checkFailedResponse(dataResponse)) return [];
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapCombatMission);
+
+      const targetCoords = data.targetsCoordinates && JSON.parse(data.targetsCoordinates);
+      data.targetsCoordinates =
+        targetCoords &&
+        targetCoords.map(({ latitude, longitude }) => ({ x: latitude, y: longitude }));
+
       data.landingPoint = JSON.parse(data.landingPoint);
       data.dumpAmmoPoint = JSON.parse(data.dumpAmmoPoint);
       data.departurePoint = JSON.parse(data.departurePoint);
-      data.scoutingArea = JSON.stringify({
+      data.scoutingArea = {
         type: 'Feature',
         properties: {},
         geometry: {
           type: 'Polygon',
           coordinates: JSON.parse(data.scoutingArea),
         },
-      });
+      };
       data.accomplished = !!data.accomplished;
-      // if (!Object.values(MissionStatus).includes(data.status)) {
-      //   data.status = MissionStatus.REGISTRED;
-      // }
-      // if (parseInt(id, 10) === 175) {
-      //   data.status = MissionStatus.LAUNCHED;
-      // }
       return { id, ...data };
     });
   }
@@ -172,28 +165,31 @@ class CombatMissionsDataModel extends DataModel {
   async getMission(id) {
     const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: { id } });
     // const [dataResponse = null] = Object.entries(testMissionsData)
-    //   .filter(([missionId]) => missionId === id)
-    //   .map(([id, data]) => ({ id, ...data }));
+    // .filter(([missionId]) => missionId === id)
+    // .map(([id, data]) => ({ id, ...data }));
     if (this.checkFailedResponse(dataResponse)) return null;
     const data = mapObject(addMissionTestData(dataResponse), mapCombatMission);
+
+    const targetCoords = data.targetsCoordinates && JSON.parse(data.targetsCoordinates);
+    data.targetsCoordinates =
+      targetCoords &&
+      targetCoords.map(({ latitude, longitude }) => ({ x: latitude, y: longitude }));
+
     data.landingPoint = JSON.parse(data.landingPoint);
     data.dumpAmmoPoint = JSON.parse(data.dumpAmmoPoint);
     data.departurePoint = JSON.parse(data.departurePoint);
-    data.scoutingArea = JSON.stringify({
+    data.scoutingArea = {
       type: 'Feature',
       properties: {},
-      geometry: {
-        type: 'Polygon',
-        coordinates: JSON.parse(data.scoutingArea),
-      },
-    });
+      geometry: { type: 'Polygon', coordinates: JSON.parse(data.scoutingArea) },
+    };
+    data.uavs = JSON.parse(data.uavs);
     data.accomplished = !!data.accomplished;
     return { id, ...data };
   }
 
   async getLaunchedMission() {
     let [launched] = await this.getMissionsByStatus(MissionStatus.LAUNCHED);
-    // launched = launched && addMissionTestData(launched);
     return launched || null;
   }
 
@@ -202,6 +198,13 @@ class CombatMissionsDataModel extends DataModel {
     const dataResponse = await this.getData({ queue: queues.ADD_MISSION, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
     return dataResponse.id;
+  }
+
+  async recalculateMission(id, data) {
+    const input = { id, ...unmapObject(addMissionInputTestData(data), mapCombatMission) };
+    const dataResponse = await this.getData({ queue: queues.ADD_MISSION, message: input });
+    if (this.checkFailedResponse(dataResponse)) return null;
+    return dataResponse.accomplished;
   }
 
   async removeMissions() {
