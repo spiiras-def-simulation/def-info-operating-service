@@ -42,15 +42,18 @@ const typeDef = gql`
     id: ID!
     tailNumber: String!
     timePrepare: Float
+    detectionRadius: Float
+    fuelResource: Int
+
     role: CombatUnitRole
     type: CombatUnitType
+
     altitude: Float
     battery: Float
-    detectionRadius: Float
     globalPosition: Point3
     localPosition: Point3
-    fuelResource: Int
-    path: [Point2]
+
+    attackPoints: [Point2]
   }
 
   type CombatUnitType {

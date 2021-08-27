@@ -1,6 +1,11 @@
 const { gql } = require('apollo-server-express');
 
 const typeDef = gql`
+  extend type Subscription {
+    onChangeStatusCombatUnits: [CombatUnit]!
+    onChangeStatusCombatUnit(id: ID!): CombatUnit
+  }
+
   extend type CombatUnit {
     status: CombatUnitStatus
   }
@@ -10,7 +15,7 @@ const typeDef = gql`
     LAUNCHED
     LOST
     STOPPED
-    PREPARE_TO_STRIKE
+    ATTACK_TARGET
   }
 `;
 

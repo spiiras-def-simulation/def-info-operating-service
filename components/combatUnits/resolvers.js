@@ -162,11 +162,6 @@ module.exports = {
         const data = await combatUnitsData.getUnitLocalPosition(id);
         return (data && data.localPosition) || null;
       },
-      path: async ({ id, path }, _, { models: { combatUnitsData } }) => {
-        if (path) return path;
-        const data = await combatUnitsData.getUnitPath(id);
-        return (data && data.path) || null;
-      },
     },
 
     CombatUnitRole: {

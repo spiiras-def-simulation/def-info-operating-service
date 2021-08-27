@@ -62,14 +62,24 @@ class TargetObjectsDataModel extends DataModel {
   }
 
   async getMissionObjects() {
-    const dataResponse = await this.getData({ queue: queues.GET_MISSION_OBJECTS, message: {} });
-    // const dataResponse = Object.entries(testData)
-    //   .filter(([_, { status }]) => status === Status.DETECTED)
-    //   .map(([id, data]) => ({ id, ...data }));
+    // const dataResponse = await this.getData({ queue: queues.GET_MISSION_OBJECTS, message: {} });
+    const dataResponse = Object.entries(testData)
+      .map(([id, data]) => ({ id, ...data }))
+      .filter(({ status }) => status === Status.DETECTED)
+      .reduce((prev, value) => {
+        const accumulate = { ...prev };
+        accumulate[value.id] = value;
+        return accumulate;
+      }, {});
     if (this.checkFailedResponse(dataResponse)) return null;
+    // if (this.checkFailedResponse(dataResponse)) return null;
+    // return Object.entries(dataResponse).map(([id, value]) => {
+    //   const [x, y] = value;
+    //   return { id, coordinates: { x, y } };
+    // });
     return Object.entries(dataResponse).map(([id, value]) => {
-      const [x, y] = value;
-      return { id, coordinates: { x, y } };
+      const data = mapObject(value, mapObjectParams);
+      return { id, ...data };
     });
   }
 
@@ -98,7 +108,12 @@ class TargetObjectsDataModel extends DataModel {
   }
 
   checkFailedResponse(response) {
-    return !response || response.status === 'error' || response.status === 'Not found';
+    return (
+      !response ||
+      response.status === 'error' ||
+      response.status === 'failed' ||
+      response.status === 'Not found'
+    );
   }
 }
 

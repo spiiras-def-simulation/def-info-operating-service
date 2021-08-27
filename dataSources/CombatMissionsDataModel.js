@@ -1,12 +1,16 @@
 const DataModel = require('./DataModel');
 
 const { mapObject, unmapObject, saveMessageFile } = require('./helpers');
+const { testData } = require('./CombatMissionsData');
 
 const mapCombatMission = {
   status: 'status',
+  accomplished: 'accomplished',
   directiveTime: 'directive_time_secs',
   numLaunch: 'simultaneous_launch_number',
   timeLaunch: 'time_out_of_launches',
+  successLevel: 'success_level',
+  strikeLevel: 'strike_level',
   scoutingArea: 'destination',
   dumpAmmoPoint: 'reset_point',
   departurePoint: 'start_point',
@@ -17,42 +21,8 @@ const mapCombatMission = {
   targetsNumber: 'targets_number',
   targetsCoordinates: 'targets_coords',
   timeIntervals: 'time_intervals',
-  successLevel: 'success_level',
-  strikeLevel: 'strike_level',
-  accomplished: 'accomplished',
+  path: 'path',
 };
-
-const addMissionTestData = (data) => ({
-  directive_time_secs: 10000,
-  simultaneous_launch_number: 3,
-  landing_point: `{
-    "x": 42.71372316507779,
-    "y": 45.130462646484375
-  }`,
-  start_point: `{
-    "x": 42.71019146477647,
-    "y": 45.17578125
-  }`,
-  reset_point: `{
-    "x": 42.558644041066486,
-    "y": 45.22590637207031
-  }`,
-  destination: `[
-    [
-      [45.18663, 42.55468],
-      [45.19438, 42.60618],
-      [45.17865, 42.68137],
-      [45.14161, 42.68171],
-      [45.12635, 42.62644],
-      [45.14234, 42.57288],
-      [45.18663, 42.55468]
-    ]
-  ]`,
-  uavs: ['0', '1', '2'],
-  success_level: 0.98,
-  strike_level: 0.98,
-  ...data,
-});
 
 const addMissionInputTestData = (data) => ({
   ...data,
@@ -75,62 +45,19 @@ const MissionStatus = {
   FINISHED: 'finished',
 };
 
-const testMissionsData = {
-  171: addMissionTestData({
-    status: MissionStatus.REGISTRED,
-  }),
-  172: addMissionTestData({
-    status: MissionStatus.REGISTRED,
-  }),
-  173: addMissionTestData({
-    status: MissionStatus.ANALYSED,
-    accomplished: false,
-  }),
-  174: addMissionTestData({
-    status: MissionStatus.ANALYSED,
-    accomplished: true,
-  }),
-  175: addMissionTestData({
-    status: MissionStatus.LAUNCHED,
-    accomplished: true,
-  }),
-  176: addMissionTestData({
-    status: MissionStatus.REJECTED,
-    accomplished: false,
-  }),
-  177: addMissionTestData({
-    status: MissionStatus.REJECTED,
-    accomplished: false,
-  }),
-  178: addMissionTestData({
-    status: MissionStatus.REJECTED,
-    acomplished: true,
-  }),
-  179: addMissionTestData({
-    status: MissionStatus.FINISHED,
-    accomplished: true,
-  }),
-  180: addMissionTestData({
-    status: MissionStatus.FINISHED,
-    accomplished: true,
-  }),
-  181: addMissionTestData({
-    status: MissionStatus.FINISHED,
-    accomplished: true,
-  }),
-};
-
 const queues = {
   GET_MISSIONS: 'get_mission_rpc',
   ADD_MISSION: 'add_mission_rpc',
   REMOVE_MISSION: 'delete_mission_rpc',
   START_MISSION: 'start_mission_rpc',
+  GET_TARGETS_IMAGE: 'get_target_image',
+  CONFIRM_ATTACK_TARGETS: 'confirm_attack_targets',
 };
 
 class CombatMissionsDataModel extends DataModel {
   async getMissions() {
-    const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: {} });
-    // const dataResponse = testMissionsData;
+    // const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: {} });
+    const dataResponse = testData;
     if (this.checkFailedResponse(dataResponse)) return [];
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapCombatMission);
@@ -163,12 +90,16 @@ class CombatMissionsDataModel extends DataModel {
   }
 
   async getMission(id) {
-    const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: { id } });
-    // const [dataResponse = null] = Object.entries(testMissionsData)
-    // .filter(([missionId]) => missionId === id)
-    // .map(([id, data]) => ({ id, ...data }));
+    // const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: { id } });
+    const [dataResponse = null] = Object.entries(testData)
+      .filter(([missionId]) => missionId === id)
+      .map(([id, data]) => ({ id, ...data }));
+
     if (this.checkFailedResponse(dataResponse)) return null;
-    const data = mapObject(addMissionTestData(dataResponse), mapCombatMission);
+    // const data = mapObject(addMissionTestData(dataResponse), mapCombatMission);
+    const data = mapObject(dataResponse, mapCombatMission);
+
+    data.accomplished = !!data.accomplished;
 
     const targetCoords = data.targetsCoordinates && JSON.parse(data.targetsCoordinates);
     data.targetsCoordinates =
@@ -183,8 +114,10 @@ class CombatMissionsDataModel extends DataModel {
       properties: {},
       geometry: { type: 'Polygon', coordinates: JSON.parse(data.scoutingArea) },
     };
+
     data.uavs = JSON.parse(data.uavs);
-    data.accomplished = !!data.accomplished;
+
+    data.path = data.path && data.path.map((point) => ({ x: point[0], y: point[1] }));
     return { id, ...data };
   }
 
@@ -193,8 +126,27 @@ class CombatMissionsDataModel extends DataModel {
     return launched || null;
   }
 
+  async getMissionPath(id) {
+    // const dataResponse = await this.getData({
+    //   queue: queues.GET_UNIT_PARAMETER,
+    //   message: { id, param: 'trajectory' },
+    // });
+
+    // if (this.checkFailedResponse(dataResponse)) {
+    //   return null;
+    // }
+
+    // const data = { path: dataResponse.trajectory || null };
+
+    const data = { path: null };
+
+    return { id, ...data };
+  }
+
   async addMission(data) {
-    const input = unmapObject(addMissionInputTestData(data), mapCombatMission);
+    const createdData = data;
+    createdData.uavs = [0, 1, 2];
+    const input = unmapObject(addMissionInputTestData(createdData), mapCombatMission);
     const dataResponse = await this.getData({ queue: queues.ADD_MISSION, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
     return dataResponse.id;
@@ -225,6 +177,12 @@ class CombatMissionsDataModel extends DataModel {
     const input = { id };
     const dataResponse = await this.getData({ queue: queue.START_MISSION, message: input });
     if (this.checkFailedResponse(dataResponse)) return false;
+    return true;
+  }
+
+  async confirmAttackTargets() {
+    const dataResponse = await this.getData({ queue: queues.CONFIRM_ATTACK_TARGETS, message: {} });
+    if (this.checkFailedResponse(dataResponse)) return null;
     return true;
   }
 

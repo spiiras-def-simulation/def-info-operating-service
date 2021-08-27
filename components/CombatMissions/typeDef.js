@@ -12,11 +12,12 @@ const typeDef = gql`
     removeCombatMissions: Boolean
     removeCombatMission(id: ID!): String
     startCombatMission(id: ID!): Boolean
-    confirmMissionAttackTarget(id: ID!, target: ID!): [CombatUnit]
+    confirmMissionAttackTargets: Boolean
   }
 
   type CombatMission {
     id: ID!
+    accomplished: Boolean
 
     name: String
     directiveTime: Int
@@ -35,7 +36,7 @@ const typeDef = gql`
     targetNumber: Int
     targetCoordinates: [Point2]
 
-    accomplished: Boolean
+    path: [Point2]
   }
 `;
 

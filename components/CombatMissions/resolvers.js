@@ -33,14 +33,21 @@ module.exports = {
         const result = await combatMissionsData.startMission(id);
         return !!result;
       },
+      confirmMissionAttackTargets: async (_, __, { models: { combatMissionsData } }) => {
+        const result = await combatMissionsData.confirmAttackTargets();
+        return !!result;
+      },
     },
     CombatMission: {
       uavs: async ({ uavs: unitsGroup }, __, { models: { combatUnitsData } }) => {
         const units = await combatUnitsData.getUnits();
-
         const data = units.filter(({ id }) => unitsGroup.includes(id));
-
         return data || [];
+      },
+      path: async ({ id, path }, _, { models: { combatUnitsData } }) => {
+        if (path) return path;
+        const data = await combatUnitsData.getUnitPath(id);
+        return (data && data.path) || null;
       },
     },
   },
