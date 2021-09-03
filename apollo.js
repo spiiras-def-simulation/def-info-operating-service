@@ -5,8 +5,11 @@ const config = require('config');
 
 const Environment = require('./components/Environment');
 const CombatUnits = require('./components/CombatUnits');
+const CombatUnitsStatus = require('./components/CombatUnitStatus');
 const CombatMissions = require('./components/CombatMissions');
+const CombatMissionStatus = require('./components/CombatMissionStatus');
 const TargetObjects = require('./components/TargetObjects');
+const TargetObjecStatus = require('./components/TargetObjectStatus');
 const MapObjects = require('./components/MapObjects');
 
 const CombatMissionsDataModel = require('./dataSources/CombatMissionsDataModel');
@@ -21,8 +24,8 @@ const typeDefs = gql`
   type Subscription
 
   type Point2 {
-    x: Float!
-    y: Float!
+    x: Float
+    y: Float
   }
 
   type Point3 {
@@ -44,12 +47,12 @@ const typeDefs = gql`
   }
 
   scalar JSON
-  scalar TimeDate
+  scalar DateTime
 `;
 
 const resolvers = {
   JSON: GraphQLJSON,
-  TimeDate: GraphQLDateTime,
+  DateTime: GraphQLDateTime,
 };
 
 module.exports = {
@@ -73,16 +76,22 @@ module.exports = {
         typeDefs,
         Environment.typeDef,
         CombatUnits.typeDef,
+        CombatUnitsStatus.typeDef,
         CombatMissions.typeDef,
+        CombatMissionStatus.typeDef,
         TargetObjects.typeDef,
+        TargetObjecStatus.typeDef,
         MapObjects.typeDef,
       ],
       resolvers: [
         resolvers,
         Environment.resolvers,
         CombatUnits.resolvers,
+        CombatUnitsStatus.resolvers,
         CombatMissions.resolvers,
+        CombatMissionStatus.resolvers,
         TargetObjects.resolvers,
+        TargetObjecStatus.resolvers,
         MapObjects.resolvers,
       ],
       context: (context) => {

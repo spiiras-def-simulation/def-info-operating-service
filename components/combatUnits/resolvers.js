@@ -136,44 +136,36 @@ module.exports = {
     CombatUnit: {
       role: async ({ role: id }, _, { models: { combatUnitsData } }) => {
         const data = await combatUnitsData.getUnitRole(id);
-
         return data || null;
       },
       type: async ({ type: id }, _, { models: { combatUnitsData } }) => {
         const data = await combatUnitsData.getUnitType(id);
-
         return data || null;
       },
-      altitude: async ({ id }, _, { models: { combatUnitsData } }) => {
+      altitude: async ({ id, altitude }, _, { models: { combatUnitsData } }) => {
+        if (altitude) return altitude;
         const data = await combatUnitsData.getUnitAltitude(id);
-
-        return data || null;
+        return (data && data.altitude) || null;
       },
-      battery: async ({ id }, _, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitBattery(id);
-
-        return data || null;
+      timeLeft: async ({ id, timeLeft }, _, { models: { combatUnitsData } }) => {
+        if (timeLeft) return timeLeft;
+        const data = await combatUnitsData.getUnitTimeLeft(id);
+        return (data && data.timeLeft) || null;
       },
-      globalPosition: async ({ id, globalPosition = null }, _, { models: { combatUnitsData } }) => {
+      tvsSize: async ({ id, tvsSize }, _, { models: { combatUnitsData } }) => {
+        if (tvsSize) return tvsSize;
+        const data = await combatUnitsData.getUnitTVS(id);
+        return (data && data.tvsSize) || null;
+      },
+      globalPosition: async ({ id, globalPosition }, _, { models: { combatUnitsData } }) => {
         if (globalPosition) return globalPosition;
-
         const data = await combatUnitsData.getUnitGlobalPosition(id);
-
         return (data && data.globalPosition) || null;
       },
-      localPosition: async ({ id, localPosition = null }, _, { models: { combatUnitsData } }) => {
+      localPosition: async ({ id, localPosition }, _, { models: { combatUnitsData } }) => {
         if (localPosition) return localPosition;
-
         const data = await combatUnitsData.getUnitLocalPosition(id);
-
         return (data && data.localPosition) || null;
-      },
-      path: async ({ id, path = null }, _, { models: { combatUnitsData } }) => {
-        if (path) return path;
-
-        const data = await combatUnitsData.getUnitPath(id);
-
-        return (data && data.path) || null;
       },
     },
 

@@ -1,19 +1,15 @@
 const DataModel = require('./DataModel');
 
-const mockData = {
-  weatherStatus: {
-    temperature: 20.0,
-    wind: {
-      velocity: 10.4,
-      direction: {
-        x: 0.0,
-        y: 1.0,
-        z: 0.0,
-      },
+const testWeatherData = {
+  temperature: 20.0,
+  wind: {
+    velocity: 10.4,
+    direction: {
+      x: 0.0,
+      y: 1.0,
+      z: 0.0,
     },
-    pressure: 101000,
   },
-  currentTime: new Date(2021, 5, 1, 10, 45, 30),
 };
 
 const queues = {
@@ -26,16 +22,15 @@ const exchange = 'environment';
 
 class EnvironmentDataModel extends DataModel {
   async getWeatherState() {
-    // const data = mockData.weatherStatus;
+    // const [windResponse, temperatureResponse] = await Promise.all([
+    //   this.getData({ queue: queues.GET_WIND_DIRECTION }),
+    //   this.getData({ queue: queues.GET_TEMPERATURE }),
+    // ]);
+    const dataResponse = testWeatherData;
 
-    const [windResponse, temperatureResponse] = await Promise.all([
-      this.getData({ queue: queues.GET_WIND_DIRECTION }),
-      this.getData({ queue: queues.GET_TEMPERATURE }),
-    ]);
+    // const data = { wind: { ...windResponse }, temperature: temperatureResponse.temperature };
 
-    const data = { wind: { ...windResponse }, temperature: temperatureResponse.temperature };
-
-    return data;
+    return dataResponse;
   }
 
   async getEnvironmentTime() {
