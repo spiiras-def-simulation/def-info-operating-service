@@ -45,7 +45,7 @@ class DataModel {
 
           const waitingResponse = setTimeout(
             () => reject(new Error(`No answer for request ${queue}`)),
-            2000,
+            3000,
           );
 
           channel.consume(

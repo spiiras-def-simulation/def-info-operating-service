@@ -145,12 +145,17 @@ module.exports = {
       altitude: async ({ id, altitude }, _, { models: { combatUnitsData } }) => {
         if (altitude) return altitude;
         const data = await combatUnitsData.getUnitAltitude(id);
-        return data || null;
+        return (data && data.altitude) || null;
       },
-      battery: async ({ id, battery }, _, { models: { combatUnitsData } }) => {
-        if (battery) return battery;
-        const data = await combatUnitsData.getUnitBattery(id);
-        return data || null;
+      timeLeft: async ({ id, timeLeft }, _, { models: { combatUnitsData } }) => {
+        if (timeLeft) return timeLeft;
+        const data = await combatUnitsData.getUnitTimeLeft(id);
+        return (data && data.timeLeft) || null;
+      },
+      tvsSize: async ({ id, tvsSize }, _, { models: { combatUnitsData } }) => {
+        if (tvsSize) return tvsSize;
+        const data = await combatUnitsData.getUnitTVS(id);
+        return (data && data.tvsSize) || null;
       },
       globalPosition: async ({ id, globalPosition }, _, { models: { combatUnitsData } }) => {
         if (globalPosition) return globalPosition;

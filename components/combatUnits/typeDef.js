@@ -43,13 +43,14 @@ const typeDef = gql`
     tailNumber: String!
     timePrepare: Float
     detectionRadius: Float
+    tvsSize: Float
     fuelResource: Int
 
     role: CombatUnitRole
     type: CombatUnitType
 
     altitude: Float
-    battery: Float
+    timeLeft: Float
     globalPosition: Point3
     localPosition: Point3
 

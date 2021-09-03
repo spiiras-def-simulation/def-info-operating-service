@@ -6,33 +6,6 @@ const CombatUnitStatus = {
   ATTACK_TARGET: 'attacking',
 };
 
-const points = [
-  {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'Point',
-      coordinates: [45.179471969604485, 42.6486067022724],
-    },
-  },
-  {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'Point',
-      coordinates: [45.184879302978516, 42.650184942521335],
-    },
-  },
-  {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'Point',
-      coordinates: [45.18110275268555, 42.653025674055456],
-    },
-  },
-];
-
 const testUnits = {
   // 4: {
   //   status: CombatUnitStatus.LAUNCHED,
@@ -211,10 +184,7 @@ const testUnits = {
     time_for_prepare: 30,
     uav_type: '2',
     uav_role: '2',
-    attack_coords: [
-      { x: 42.61627553413439, y: 45.155181884765625 },
-      { x: 42.603136199729526, y: 45.15758514404297 },
-    ],
+    attack_coords: `[{ "x": 1117.9521916536614, "y": 2262.798832998611 }]`,
   },
   6: {
     status: CombatUnitStatus.LAUNCHED,
@@ -223,10 +193,10 @@ const testUnits = {
     time_for_prepare: 30,
     uav_type: '2',
     uav_role: '2',
-    attack_coords: [{ x: 42.603136199729526, y: 45.188140869140625 }],
+    attack_coords: `[{ "x": 1942.0389028536156, "y": 2076.4835765538737 }, { "x": 1557.4651042930782, "y": 2074.0949194198474 }]`,
   },
   7: {
-    status: CombatUnitStatus.LAUNCHED,
+    status: CombatUnitStatus.LOST,
     tail_number: 'ORLAN-4',
     fuel_resource: 16,
     time_for_prepare: 30,
@@ -234,7 +204,7 @@ const testUnits = {
     uav_role: '2',
   },
   8: {
-    status: CombatUnitStatus.LAUNCHED,
+    status: CombatUnitStatus.LOST,
     tail_number: 'ORLAN-5',
     fuel_resource: 16,
     time_for_prepare: 30,
@@ -242,7 +212,7 @@ const testUnits = {
     uav_role: '2',
   },
   9: {
-    status: CombatUnitStatus.LAUNCHED,
+    status: CombatUnitStatus.LOST,
     tail_number: 'ORLAN-6',
     fuel_resource: 16,
     time_for_prepare: 30,
@@ -250,7 +220,7 @@ const testUnits = {
     uav_role: '2',
   },
   10: {
-    status: CombatUnitStatus.LAUNCHED,
+    status: CombatUnitStatus.LOST,
     tail_number: 'ORLAN-7',
     fuel_resource: 16,
     time_for_prepare: 30,
@@ -274,7 +244,7 @@ const testUnits = {
     uav_role: '2',
   },
   13: {
-    status: CombatUnitStatus.LAUNCHED,
+    status: CombatUnitStatus.LOST,
     tail_number: 'ORLAN-10',
     fuel_resource: 16,
     time_for_prepare: 30,
@@ -290,7 +260,7 @@ const testUnits = {
     uav_role: '2',
   },
   15: {
-    status: CombatUnitStatus.LAUNCHED,
+    status: CombatUnitStatus.LOST,
     tail_number: 'ORLAN-12',
     fuel_resource: 16,
     time_for_prepare: 30,
@@ -298,7 +268,7 @@ const testUnits = {
     uav_role: '2',
   },
   16: {
-    status: CombatUnitStatus.LAUNCHED,
+    status: CombatUnitStatus.LOST,
     tail_number: 'ORLAN-13',
     fuel_resource: 16,
     time_for_prepare: 30,
@@ -365,6 +335,9 @@ const testUnits = {
 
 const testUnitParams = {
   4: {
+    altitude: 1200.0,
+    battery: 1000,
+    tvsSize: 535,
     globalPosition: {
       lattitude: 42.6486067022724,
       longtitude: 45.179471969604485,
@@ -372,16 +345,20 @@ const testUnitParams = {
     },
   },
   5: {
+    altitude: 400.0,
+    battery: 1000,
     globalPosition: {
-      lattitude: 42.650184942521335,
-      longtitude: 45.184879302978516,
+      lattitude: 42.653025674055456,
+      longtitude: 45.18110275268555,
       altitude: 400.0,
     },
   },
   6: {
+    altitude: 400.0,
+    battery: 1000,
     globalPosition: {
-      lattitude: 42.653025674055456,
-      longtitude: 45.18110275268555,
+      lattitude: 42.650184942521335,
+      longtitude: 45.184879302978516,
       altitude: 400.0,
     },
   },

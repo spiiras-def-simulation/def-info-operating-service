@@ -9,7 +9,7 @@ module.exports = {
           return pubsub.asyncIterator('status');
         },
         resolve: async (_, __, { models: { combatUnitsData } }) => {
-          const data = await combatUnitsData.getObjects();
+          const data = await combatUnitsData.getUnits();
           return data || [];
         },
       },
@@ -24,7 +24,7 @@ module.exports = {
           },
         ),
         resolve: async (_, { id }, { models: { combatUnitsData } }) => {
-          const data = await combatUnitsData.getObject(id);
+          const data = await combatUnitsData.getUnit(id);
           return data || null;
         },
       },
@@ -32,6 +32,7 @@ module.exports = {
 
     CombatUnitStatus: {
       REGISTRED: 'registered',
+      SPAWNED: 'spawned',
       LAUNCHED: 'launched',
       LOST: 'lost_connection',
       STOPPED: 'stopped',

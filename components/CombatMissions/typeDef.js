@@ -13,6 +13,8 @@ const typeDef = gql`
     removeCombatMission(id: ID!): String
     startCombatMission(id: ID!): Boolean
     confirmMissionAttackTargets: Boolean
+    confirmUnitsManualControl: Boolean
+    confirmUnitManualControl: Boolean
   }
 
   type CombatMission {

@@ -6,6 +6,11 @@ const typeDef = gql`
     getLaunchedCombatMission: CombatMission
   }
 
+  extend type Subscription {
+    onChangeStatusCombatMissions: [CombatMission]!
+    onChangeStatusCombatMission(id: ID!): CombatMission
+  }
+
   extend type CombatMission {
     status: CombatMissionStatus
   }

@@ -4,93 +4,6 @@ const { mapObject, unmapObject, saveMessageFile } = require('./helpers');
 
 const { testUnits, testUnitParams, testUnitTypes, testUnitRoles } = require('./CombatUnitsData');
 
-const CombatUnitStatus = {
-  REGISTRED: 'registered',
-  LAUNCHED: 'launched',
-  LOST: 'lost_connection',
-  STOPPED: 'stopped',
-  ATTACK_TARGET: 'attacking',
-};
-
-const testUnitsData = {
-  0: {
-    status: CombatUnitStatus.LAUNCHED,
-    tail_number: '1',
-    fuel_resource: 16,
-    time_for_prepare: 30,
-    detection_radius: 1000,
-    uav_type: '1',
-    uav_role: '1',
-  },
-  1: {
-    status: CombatUnitStatus.ATTACK_TARGET,
-    tail_number: '1',
-    fuel_resource: 16,
-    time_for_prepare: 30,
-    uav_type: '2',
-    uav_role: '2',
-  },
-  2: {
-    status: CombatUnitStatus.ATTACK_TARGET,
-    tail_number: '1',
-    fuel_resource: 16,
-    time_for_prepare: 30,
-    uav_type: '2',
-    uav_role: '2',
-  },
-};
-
-const testUnitParamsData = {
-  0: {
-    globalPosition: {
-      lattitude: 42.69442249442193,
-      longtitude: 45.171403884887695,
-      altitude: 1200,
-    },
-  },
-  1: {
-    globalPosition: {
-      lattitude: 42.69940592189281,
-      longtitude: 45.17801284790039,
-      altitude: 1200,
-    },
-  },
-  2: {
-    globalPosition: {
-      lattitude: 42.69934284303157,
-      longtitude: 45.16779899597167,
-      altitude: 1200,
-    },
-  },
-  26: {
-    globalPosition: {
-      lattitude: 42.69934284303157,
-      longtitude: 45.16779899597167,
-      altitude: 1200,
-    },
-  },
-};
-
-const testUnitTypesData = {
-  1: {
-    name: 'Орлан-Р',
-  },
-  2: {
-    name: 'Орлан-У',
-  },
-};
-
-const testUnitRolesData = {
-  1: {
-    name: 'Разведчик',
-    uav_type: '1',
-  },
-  2: {
-    name: 'Ударный',
-    uav_type: '2',
-  },
-};
-
 const mapUnit = {
   status: 'status',
   fuelResource: 'fuel_resource',
@@ -151,6 +64,7 @@ class CombatUnitsDataModel extends DataModel {
     if (this.checkFailedResponse(dataResponse)) return [];
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapUnit);
+      data.attackPoints = JSON.parse(data.attackPoints);
       return { id, ...data };
     });
   }
@@ -161,6 +75,7 @@ class CombatUnitsDataModel extends DataModel {
       .map(([id, data]) => ({ id, ...data }));
     if (this.checkFailedResponse(dataResponse)) return null;
     const data = mapObject(dataResponse, mapUnit);
+    data.attackPoints = JSON.parse(data.attackPoints);
     return { id, ...data };
   }
   async addUnit(data) {
@@ -200,41 +115,35 @@ class CombatUnitsDataModel extends DataModel {
   }
 
   async getUnitAltitude(id) {
-    const dataResponse = await this.getData({
-      queue: queues.GET_UNIT_PARAMETER,
-      message: { id, param: 'altitude' },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
-    return dataResponse.altitude;
+    // const input = { id, param: 'altitude' };
+    // const dataResponse = await this.getData({ queue: queues.GET_UNIT_PARAMETER, message: input });
+    const dataResponse = testUnitParams[id] || null;
+    if (this.checkFailedResponse(dataResponse)) return null;
+    const data = { altitude: dataResponse.altitude || null };
+    return { id, ...data };
   }
-  async getUnitBattery(id) {
-    const dataResponse = await this.getData({
-      queue: queues.GET_UNIT_PARAMETER,
-      message: { id, param: 'battery' },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
-    return dataResponse.battery;
+  async getUnitTimeLeft(id) {
+    // const input = { id, param: 'battery' };
+    // const dataResponse = await this.getData({ queue: queues.GET_UNIT_PARAMETER, message: input });
+    const dataResponse = testUnitParams[id] || null;
+    if (this.checkFailedResponse(dataResponse)) return null;
+    const data = { timeLeft: dataResponse.battery || null };
+    return { id, ...data };
+  }
+  async getUnitTVS(id) {
+    // const input = { id, param: 'tvs' };
+    // const dataResponse = await this.getData({ queue: queues.GET_UNIT_PARAMETER, message: input });
+    const dataResponse = testUnitParams[id] || null;
+    if (this.checkFailedResponse(dataResponse)) return null;
+    const data = { tvsSize: dataResponse.tvsSize || null };
+    return { id, ...data };
   }
   async getUnitLocalPosition(id) {
-    const dataResponse = await this.getData({
-      queue: queues.GET_UNIT_PARAMETER,
-      message: { id, param: 'local_pose' },
-    });
-
-    if (this.checkFailedResponse(dataResponse)) {
-      return null;
-    }
-
+    // const input = { id, param: 'local_pose' };
+    // const dataResponse = await this.getData({ queue: queues.GET_UNIT_PARAMETER, message: input });
+    const dataResponse = testUnitParams[id] || null;
+    if (this.checkFailedResponse(dataResponse)) return null;
     const data = { localPosition: dataResponse.coordinates || null };
-
     return { id, ...data };
   }
   async getUnitGlobalPosition(id) {
@@ -249,22 +158,6 @@ class CombatUnitsDataModel extends DataModel {
         z: dataResponse.altitude || null,
       },
     };
-    return { id, ...data };
-  }
-  async getUnitPath(id) {
-    // const dataResponse = await this.getData({
-    //   queue: queues.GET_UNIT_PARAMETER,
-    //   message: { id, param: 'trajectory' },
-    // });
-
-    // if (this.checkFailedResponse(dataResponse)) {
-    //   return null;
-    // }
-
-    // const data = { path: dataResponse.trajectory || null };
-
-    const data = { path: null };
-
     return { id, ...data };
   }
 

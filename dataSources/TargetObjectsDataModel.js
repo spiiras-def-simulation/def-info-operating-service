@@ -6,15 +6,15 @@ const { testData, Status } = require('./TargetObjectsData');
 const mapObjectParams = {
   status: 'status',
   type: 'co_type',
-  image: 'image',
   coordinates: 'coordinates',
+  path: 'trajectory',
+  image: 'image',
 };
 
 const queues = {
   GET_OBJECTS: 'get_co_rpc',
   GET_OBJECTS_POS: 'get_co_pose_rpc',
-  GET_OBJECTS_PATH: 'get_co_trajectory_rpc',
-  GET_MISSION_OBJECTS: 'get_target_coords_for_mission',
+  GET_DETECTED_OBJECTS: 'get_target_coords_for_mission',
   ADD_OBJECT: 'add_co_rpc',
   REMOVE_OBJECT: 'delete_co_rpc',
   ADD_OBJECTS: 'spawn_co_rpc',
@@ -28,6 +28,8 @@ class TargetObjectsDataModel extends DataModel {
     if (this.checkFailedResponse(dataResponse)) return null;
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapObjectParams);
+      const pathData = data.path && JSON.parse(data.path);
+      data.path = pathData && pathData.map((point) => ({ x: point[0], y: point[1] }));
       return { id, ...data };
     });
   }
@@ -38,6 +40,8 @@ class TargetObjectsDataModel extends DataModel {
       .map(([id, data]) => ({ id, ...data }));
     if (this.checkFailedResponse(dataResponse)) return null;
     const data = mapObject(dataResponse, mapObjectParams);
+    const pathData = data.path && JSON.parse(data.path);
+    data.path = pathData && pathData.map((point) => ({ x: point[0], y: point[1] }));
     return { id, ...data };
   }
   async getObjectPosition(id) {
@@ -47,22 +51,9 @@ class TargetObjectsDataModel extends DataModel {
     const data = { coordinates: dataResponse || null };
     return { id, ...data };
   }
-  async getObjectPath(id) {
-    const input = { id };
-    const dataResponse = await this.getData({ queue: queues.GET_OBJECTS_PATH, message: input });
-    if (this.checkFailedResponse(dataResponse)) return null;
-    const data = { path: dataResponse.trajectory };
-    return { id, ...data };
-  }
-  async getObjectImage(id) {
-    const dataResponse = await this.getData({ queue: queues.GET_OBJECT_IMAGE, message: { id } });
-    if (this.checkFailedResponse(dataResponse)) return null;
-    const data = { image: dataResponse || null };
-    return { id, ...data };
-  }
 
-  async getMissionObjects() {
-    // const dataResponse = await this.getData({ queue: queues.GET_MISSION_OBJECTS, message: {} });
+  async getDetectedObjects() {
+    // const dataResponse = await this.getData({ queue: queues.GET_DETECTED_OBJECTS, message: {} });
     const dataResponse = Object.entries(testData)
       .map(([id, data]) => ({ id, ...data }))
       .filter(({ status }) => status === Status.DETECTED)
@@ -71,16 +62,19 @@ class TargetObjectsDataModel extends DataModel {
         accumulate[value.id] = value;
         return accumulate;
       }, {});
-    if (this.checkFailedResponse(dataResponse)) return null;
     // if (this.checkFailedResponse(dataResponse)) return null;
-    // return Object.entries(dataResponse).map(([id, value]) => {
-    //   const [x, y] = value;
-    //   return { id, coordinates: { x, y } };
-    // });
     return Object.entries(dataResponse).map(([id, value]) => {
-      const data = mapObject(value, mapObjectParams);
-      return { id, ...data };
+      return { id, detectedCoordinates: value.coordinates };
     });
+    // return Object.entries(dataResponse).map(([id, [x, y, z]]) => {
+    //   return { id, detectedCoordinates: { x, y, z } };
+    // });
+  }
+  async getDetectedObjectImage(id) {
+    const dataResponse = await this.getData({ queue: queues.GET_OBJECT_IMAGE, message: { id } });
+    if (this.checkFailedResponse(dataResponse)) return null;
+    const data = dataResponse;
+    return { id, ...data };
   }
 
   async addObject(data) {

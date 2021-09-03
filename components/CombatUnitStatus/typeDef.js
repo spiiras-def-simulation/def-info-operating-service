@@ -12,6 +12,7 @@ const typeDef = gql`
 
   enum CombatUnitStatus {
     REGISTRED
+    SPAWNED
     LAUNCHED
     LOST
     STOPPED

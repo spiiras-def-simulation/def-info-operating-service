@@ -11,8 +11,8 @@ module.exports = {
         const data = await targetObjectsData.getObject(id);
         return data || null;
       },
-      getMissionTargetObjects: async (_, __, { models: { targetObjectsData } }) => {
-        const data = await targetObjectsData.getMissionObjects();
+      getDetectedTargetObjects: async (_, __, { models: { targetObjectsData } }) => {
+        const data = await targetObjectsData.getDetectedObjects();
         return data || [];
       },
     },
@@ -30,8 +30,8 @@ module.exports = {
         const result = await targetObjectsData.addObjectsToMap(input);
         return !!result;
       },
-      loadMissionTargetObjects: async (_, __, { models: { targetObjectsData } }) => {
-        const data = await targetObjectsData.getMissionObjects();
+      loadDetectedTargetObjects: async (_, __, { models: { targetObjectsData } }) => {
+        const data = await targetObjectsData.getDetectedObjects();
         return data || [];
       },
     },
@@ -83,19 +83,14 @@ module.exports = {
     },
 
     TargetObject: {
-      coordinates: async ({ id, coordinates }, _, { models: { targetObjectsData } }) => {
-        if (coordinates) return coordinates;
-        const data = await targetObjectsData.getObjectPosition(id);
-        return (data && data.coordinates) || null;
-      },
-      path: async ({ id, path }, _, { models: { targetObjectsData } }) => {
-        if (path) return path;
-        const data = await targetObjectsData.getObjectPath(id);
-        return (data && data.path) || null;
-      },
+      // coordinates: async ({ id, coordinates }, _, { models: { targetObjectsData } }) => {
+      //   if (coordinates) return coordinates;
+      //   const data = await targetObjectsData.getObjectPosition(id);
+      //   return (data && data.coordinates) || null;
+      // },
       image: async ({ id, image }, _, { models: { targetObjectsData } }) => {
         if (image) return image;
-        const data = await targetObjectsData.getObjectImage(id);
+        const data = await targetObjectsData.getDetectedObjectImage(id);
         return (data && data.image) || null;
       },
     },

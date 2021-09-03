@@ -1,0 +1,82 @@
+{
+  "directive_time_secs": 7200,
+  "time_out_of_launches": 20,
+  "simultaneous_launch_number": 3,
+  "reset_point": { "latutude": 60.0, "longitude": 60.0 },
+  "landing_point": { "latutude": 60.1, "longitude": 60.3 },
+  "uavs": [
+    {
+      "flight_number": "ss1",
+      "uav_type_name": "orlan",
+      "flight_hours_resource": 10.0,
+      "time_to_start_secs": 0.0
+    },
+    {
+      "flight_number": "ss2",
+      "uav_type_name": "quadro",
+      "flight_hours_resource": 8.0,
+      "time_to_start_secs": 5.0
+    }
+  ],
+  "uav_types": [
+    {
+      "uav_type_name": "orlan",
+      "min_h_speed": 20.0,
+      "max_h_speed": 40.0,
+      "min_v_speed_up": 1.0,
+      "max_v_speed_up": 2.0,
+      "min_v_speed_down": 1.0,
+      "max_v_speed_down": 10.0,
+      "payload_type_name": "RG",
+      "payload_number": 4,
+      "resource_consumption_per_hour": 1.0,
+      "uturn_radius": 100.0
+    },
+    {
+      "uav_type_name": "quadro",
+      "min_h_speed": 0.0,
+      "max_h_speed": 10.0,
+      "min_v_speed_up": 1.0,
+      "max_v_speed_up": 1.0,
+      "min_v_speed_down": 1.0,
+      "max_v_speed_down": 1.0,
+      "payload_type_name": "RG",
+      "payload_number": 2,
+      "resource_consumption_per_hour": 1.0,
+      "uturn_radius": 0.0
+    }
+  ],
+  "payload": { "payload_type_name": "RG", "weight": 0.2, "damage_radius": 50.0 },
+  "target_type": {
+    "target_type_name": "JM",
+    "max_speed": 30.0,
+    "min_acceleration": 0.5,
+    "max_acceleration": 5.1,
+    "length": 3,
+    "width": 2,
+    "height": 1,
+    "uturn_radius": 10.0,
+    "weapon": { "h_distance": 500.0, "v_distance": 100.0, "rate_of_fire": 700 }
+  },
+  "destination": {
+    "dest_poligon": [
+      { "latutude": 59.8, "longitude": 59.9 },
+      { "latutude": 59.9, "longitude": 59.9 },
+      { "latutude": 59.9, "longitude": 59.8 },
+      { "latutude": 59.8, "longitude": 59.8 }
+    ],
+    "targets_number": 3,
+    "targets_coords": [
+      { "latutude": 59.826, "longitude": 59.834 },
+      { "latutude": 59.827, "longitude": 59.844 }
+    ]
+  },
+  "time_intervals": {
+    "start": 0,
+    "order": 2400,
+    "marching": 2000,
+    "attack": 3600,
+    "reset": 500,
+    "returning": 2000
+  }
+}

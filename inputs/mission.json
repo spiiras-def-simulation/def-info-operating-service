@@ -1,0 +1,70 @@
+{
+  "mission_locations_local": {
+    // {la, ],
+    // [42.60618, 45.19438],
+    // [42.68137, 45.17865],
+    // [42.68171, 45.14161],
+    // [42.62644, 45.12635],
+    // [42.57288, 45.14234],
+    // [42.55468, 45.18663],
+  },
+  "mission_input": {
+    "directive_time_secs": 10000,
+    "time_out_of_launches": 30,
+    "simultaneous_launch_number": 5,
+    "reset_point": { "latutude": 42.558644041066486, "longitude": 45.22590637207031 },
+    "departure_point": { "latutude": 42.71019146477647, "longitude": 45.17578125 },
+    "landing_point": { "latutude": 42.71372316507779, "longitude": 45.130462646484375 },
+    "uavs": [
+      {
+        "flight_number": "0",
+        "uav_type_name": "orlan-scout",
+        "flight_hours_resource": 16.0,
+        "time_to_start_secs": 0.0
+      },
+      {
+        "flight_number": "1",
+        "uav_type_name": "orlan-striker",
+        "flight_hours_resource": 16.0,
+        "time_to_start_secs": 20.0
+      },
+      {
+        "flight_number": "2",
+        "uav_type_name": "orlan-striker",
+        "flight_hours_resource": 16.0,
+        "time_to_start_secs": 20.0
+      }
+    ],
+    "destination": {
+      "dest_poligon": [
+        { "latutude": 42.55468, "longitude": 45.18663 },
+        { "latutude": 42.55468, "longitude": 45.18663 },
+        { "latutude": 42.55468, "longitude": 45.18663 },
+        { "latutude": 42.55468, "longitude": 45.18663 },
+        { "latutude": 42.55468, "longitude": 45.18663 },
+        { "latutude": 42.55468, "longitude": 45.18663 },
+
+        { "latutude": 59.9, "longitude": 59.9 },
+        { "latutude": 59.9, "longitude": 59.8 },
+        { "latutude": 59.8, "longitude": 59.8 }
+      ],
+      "targets_number": 3,
+      "targets_coords": [
+        { "latutude": 59.826, "longitude": 59.834 },
+        { "latutude": 59.827, "longitude": 59.844 }
+      ]
+    },
+    "target_type": "1",
+    "targets_number": 3,
+    "targets_coords": [],
+    "time_intervals": {
+      "start": 0,
+      "order": 2400,
+      "marching": 2000,
+      "attack": 300,
+      "reset": 500,
+      "returning": 2000
+    },
+    "success_level": 0.9
+  }
+}
