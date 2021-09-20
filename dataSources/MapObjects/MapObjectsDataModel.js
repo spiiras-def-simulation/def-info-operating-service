@@ -1,8 +1,8 @@
-const DataModel = require('./DataModel');
-
-const { mapObject } = require('./helpers');
+const DataModel = require('../DataModel');
+const { mapObject } = require('../helpers');
 
 const mapMapObject = {
+  id: 'id',
   type: 'type',
   coordinates: 'area',
 };
@@ -25,18 +25,20 @@ class MapObjectsDataModel extends DataModel {
     const input = { all: '' };
     const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
-    return Object.entries(dataResponse).map(([id, value]) => {
+    return dataResponse.map((value) => {
       const data = mapObject(value, mapMapObject);
-      return { id, ...data };
+      data.coordinates = JSON.parse(data.coordinates);
+      return { ...data };
     });
   }
   async getObjectsByType(type) {
     const input = { type };
     const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
-    return Object.entries(dataResponse).map(([id, value]) => {
+    return dataResponse.map((value) => {
       const data = mapObject(value, mapMapObject);
-      return { id, ...data };
+      data.coordinates = JSON.parse(data.coordinates);
+      return { ...data };
     });
   }
   async getObject(id) {
@@ -44,6 +46,7 @@ class MapObjectsDataModel extends DataModel {
     const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
     const data = mapObject(dataResponse, mapMapObject);
+    data.coordinates = JSON.parse(data.coordinates);
     return { id, ...data };
   }
   async addObjects(data) {

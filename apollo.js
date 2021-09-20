@@ -3,7 +3,6 @@ const { GraphQLJSON } = require('graphql-type-json');
 const { GraphQLDateTime } = require('graphql-iso-date');
 const config = require('config');
 
-const Environment = require('./components/Environment');
 const CombatUnits = require('./components/CombatUnits');
 const CombatUnitsStatus = require('./components/CombatUnitStatus');
 const CombatMissions = require('./components/CombatMissions');
@@ -12,11 +11,18 @@ const TargetObjects = require('./components/TargetObjects');
 const TargetObjecStatus = require('./components/TargetObjectStatus');
 const MapObjects = require('./components/MapObjects');
 
-const CombatMissionsDataModel = require('./dataSources/CombatMissionsDataModel');
-const EnvironmentDataModel = require('./dataSources/EnvironmentDataModel');
-const TargetObjectsDataModel = require('./dataSources/TargetObjectsDataModel');
-const CombatUnitsDataModel = require('./dataSources/CombatUnitsDataModel');
-const MapObjectsDataModel = require('./dataSources/MapObjectsDataModel');
+const CombatMissionsDataModel = require('./dataSources/CombatMissions/CombatMissionsDataModel');
+const CombatUnitsDataModel = require('./dataSources/CombatUnits/CombatUnitsDataModel');
+const CombatUnitTypesDataModel = require('./dataSources/CombatUnitTypes/CombatUnitTypesDataModel');
+const CombatUnitRolesDataModel = require('./dataSources/CombatUnitRoles/CombatUnitRolesDataModel');
+const TargetObjectsDataModel = require('./dataSources/TargetObjects/TargetObjectsDataModel');
+const MapObjectsDataModel = require('./dataSources/MapObjects/MapObjectsDataModel');
+
+// const CombatMissionsDataModel = require('./dataSources/CombatMissions/TestCombatMissionsDataModel');
+// const CombatUnitsDataModel = require('./dataSources/CombatUnits/TestCombatUnitsDataModel');
+// const CombatUnitTypesDataModel = require('./dataSources/CombatUnitTypes/TestCombatUnitTypesDataModel');
+// const CombatUnitRolesDataModel = require('./dataSources/CombatUnitRoles/TestCombatUnitRolesDataModel');
+// const TargetObjectsDataModel = require('./dataSources/TargetObjects/TestTargetObjectsDataModel');
 
 const typeDefs = gql`
   type Query
@@ -29,16 +35,16 @@ const typeDefs = gql`
   }
 
   type Point3 {
-    x: Float!
-    y: Float!
-    z: Float!
+    x: Float
+    y: Float
+    z: Float
   }
 
   type Point4 {
-    x: Float!
-    y: Float!
-    z: Float!
-    w: Float!
+    x: Float
+    y: Float
+    z: Float
+    w: Float
   }
 
   type Range {
@@ -59,9 +65,10 @@ module.exports = {
   createApolloServer: async function (app, httpServer) {
     const dataModels = {
       combatMissionsData: new CombatMissionsDataModel({ connection: config.amqp.connection }),
-      environmentData: new EnvironmentDataModel({ connection: config.amqp.connection }),
       targetObjectsData: new TargetObjectsDataModel({ connection: config.amqp.connection }),
       combatUnitsData: new CombatUnitsDataModel({ connection: config.amqp.connection }),
+      combatUnitTypesData: new CombatUnitTypesDataModel({ connection: config.amqp.connection }),
+      combatUnitRolesData: new CombatUnitRolesDataModel({ connection: config.amqp.connection }),
       mapObjectsData: new MapObjectsDataModel({ connection: config.amqp.connection }),
     };
 
@@ -74,7 +81,6 @@ module.exports = {
     const server = new ApolloServer({
       typeDefs: [
         typeDefs,
-        Environment.typeDef,
         CombatUnits.typeDef,
         CombatUnitsStatus.typeDef,
         CombatMissions.typeDef,
@@ -85,7 +91,6 @@ module.exports = {
       ],
       resolvers: [
         resolvers,
-        Environment.resolvers,
         CombatUnits.resolvers,
         CombatUnitsStatus.resolvers,
         CombatMissions.resolvers,

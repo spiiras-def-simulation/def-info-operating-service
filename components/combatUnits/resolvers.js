@@ -5,102 +5,106 @@ module.exports = {
     Query: {
       getCombatUnits: async (_, __, { models: { combatUnitsData } }) => {
         const data = await combatUnitsData.getUnits();
-
         return data || [];
       },
       getCombatUnit: async (_, { id }, { models: { combatUnitsData } }) => {
         const data = await combatUnitsData.getUnit(id);
-
         return data || null;
       },
 
-      getCombatUnitTypes: async (_, __, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitTypes();
-
+      getCombatUnitTypes: async (_, __, { models: { combatUnitTypesData } }) => {
+        const data = await combatUnitTypesData.getTypes();
         return data || [];
       },
-      getCombatUnitType: async (_, { id }, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitType(id);
-
+      getCombatUnitType: async (_, { id }, { models: { combatUnitTypesData } }) => {
+        const data = await combatUnitTypesData.getType(id);
         return data || null;
       },
 
-      getCombatUnitWeaponTypes: async (_, __, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitWeaponTypes();
-
+      getCombatUnitWeaponTypes: async (_, __, { models: { combatUnitTypesData } }) => {
+        const data = await combatUnitTypesData.getWeaponTypes();
         return data || [];
       },
-      getCombatUnitWeaponType: async (_, { id }, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitWeaponType(id);
-
+      getCombatUnitWeaponType: async (_, { id }, { models: { combatUnitTypesData } }) => {
+        const data = await combatUnitTypesData.getWeaponType(id);
         return data || null;
       },
 
-      getCombatUnitRoles: async (_, __, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitRoles();
-
+      getCombatUnitRoles: async (_, __, { models: { combatUnitRolesData } }) => {
+        const data = await combatUnitRolesData.getRoles();
         return data || [];
       },
-      getCombatUnitRole: async (_, { id }, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitRole(id);
-
+      getCombatUnitRole: async (_, { id }, { models: { combatUnitRolesData } }) => {
+        const data = await combatUnitRolesData.getRole(id);
         return data || null;
       },
-
-      getCombatUnitRoleTypes: async (_, __, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitRoleTypes();
-
+      getCombatUnitRoleTypes: async (_, __, { models: { combatUnitRolesData } }) => {
+        const data = await combatUnitRolesData.getRoleTypes();
         return data || [];
       },
     },
 
     Mutation: {
+      addCombatUnitsToMap: async (_, { input }, { models: { combatUnitsData } }) => {
+        const result = await combatUnitsData.addUnitsToMap(input);
+        return !!result;
+      },
       addCombatUnit: async (_, { input }, { models: { combatUnitsData } }) => {
         const result = await combatUnitsData.addUnit(input);
         return result || null;
       },
-      removeCombatUnits: async (_, __, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.removeUnits();
-        return result || null;
-      },
+      // removeCombatUnits: async (_, __, { models: { combatUnitsData } }) => {
+      //   const result = await combatUnitsData.removeUnits();
+      //   return result || null;
+      // },
       removeCombatUnit: async (_, { id }, { models: { combatUnitsData } }) => {
         const result = await combatUnitsData.removeUnit(id);
         return result || null;
       },
 
-      addCombatUnitType: async (_, { input }, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.addUnitType(input);
+      addCombatUnitType: async (_, { input }, { models: { combatUnitTypesData } }) => {
+        const result = await combatUnitTypesData.addType(input);
         return result || null;
       },
-      removeCombatUnitTypes: async (_, __, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.removeUnitTypes();
+      removeCombatUnitTypes: async (_, __, { models: { combatUnitTypesData } }) => {
+        const result = await combatUnitTypesData.removeTypes();
         return result || null;
       },
-      removeCombatUnitType: async (_, { id }, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.removeUnitType(id);
-        return result || null;
-      },
-
-      addCombatUnitRole: async (_, { input }, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.addUnitRole(input);
-        return result || null;
-      },
-      removeCombatUnitRoles: async (_, __, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.removeUnitRoles();
-        return result || null;
-      },
-      removeCombatUnitRole: async (_, { id }, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.removeUnitRole(id);
+      removeCombatUnitType: async (_, { id }, { models: { combatUnitTypesData } }) => {
+        const result = await combatUnitTypesData.removeType(id);
         return result || null;
       },
 
-      addCombatUnitsToMap: async (_, { input }, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.addUnitsToMap(input);
-        return !!result;
+      addCombatUnitRole: async (_, { input }, { models: { combatUnitRolesData } }) => {
+        const result = await combatUnitRolesData.addRole(input);
+        return result || null;
+      },
+      removeCombatUnitRoles: async (_, __, { models: { combatUnitRolesData } }) => {
+        const result = await combatUnitRolesData.removeRoles();
+        return result || null;
+      },
+      removeCombatUnitRole: async (_, { id }, { models: { combatUnitRolesData } }) => {
+        const result = await combatUnitRolesData.removeRole(id);
+        return result || null;
       },
     },
 
     Subscription: {
+      onUpdateCombatUnitTimeLeft: {
+        subscribe: withFilter(
+          (_, __, { models: { combatUnitsData } }) => {
+            const pubsub = combatUnitsData.subscribeUnitObjects();
+            return pubsub.asyncIterator('battery');
+          },
+          (payload, params) => {
+            return parseInt(payload.id) === parseInt(params.id);
+          },
+        ),
+        resolve: (payload, { id }) => {
+          const { battery: timeLeft } = payload;
+          return { id, timeLeft };
+        },
+      },
       onUpdateCombatUnitGlobalPosition: {
         subscribe: withFilter(
           (_, __, { models: { combatUnitsData } }) => {
@@ -134,45 +138,39 @@ module.exports = {
     },
 
     CombatUnit: {
-      role: async ({ role: id }, _, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitRole(id);
-        return data || null;
+      type: async ({ type: id }, _, { models: { combatUnitTypesData } }) => {
+        const data = await combatUnitTypesData.getType(id);
+        return data;
       },
-      type: async ({ type: id }, _, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitType(id);
-        return data || null;
+      role: async ({ role: id }, _, { models: { combatUnitRolesData } }) => {
+        const data = await combatUnitRolesData.getRole(id);
+        return data;
       },
-      altitude: async ({ id, altitude }, _, { models: { combatUnitsData } }) => {
-        if (altitude) return altitude;
-        const data = await combatUnitsData.getUnitAltitude(id);
-        return (data && data.altitude) || null;
-      },
-      timeLeft: async ({ id, timeLeft }, _, { models: { combatUnitsData } }) => {
-        if (timeLeft) return timeLeft;
-        const data = await combatUnitsData.getUnitTimeLeft(id);
-        return (data && data.timeLeft) || null;
-      },
-      tvsSize: async ({ id, tvsSize }, _, { models: { combatUnitsData } }) => {
-        if (tvsSize) return tvsSize;
-        const data = await combatUnitsData.getUnitTVS(id);
-        return (data && data.tvsSize) || null;
-      },
-      globalPosition: async ({ id, globalPosition }, _, { models: { combatUnitsData } }) => {
-        if (globalPosition) return globalPosition;
-        const data = await combatUnitsData.getUnitGlobalPosition(id);
-        return (data && data.globalPosition) || null;
-      },
-      localPosition: async ({ id, localPosition }, _, { models: { combatUnitsData } }) => {
-        if (localPosition) return localPosition;
-        const data = await combatUnitsData.getUnitLocalPosition(id);
-        return (data && data.localPosition) || null;
-      },
+      // altitude: async ({ id, altitude }, _, { models: { combatUnitsData } }) => {
+      //   if (altitude) return altitude;
+      //   const data = await combatUnitsData.getUnitAltitude(id);
+      //   return (data && data.altitude) || null;
+      // },
+      // timeLeft: async ({ id, timeLeft }, _, { models: { combatUnitsData } }) => {
+      //   if (timeLeft) return timeLeft;
+      //   const data = await combatUnitsData.getUnitTimeLeft(id);
+      //   return (data && data.timeLeft) || null;
+      // },
+      // globalPosition: async ({ id, globalPosition }, _, { models: { combatUnitsData } }) => {
+      //   if (globalPosition) return globalPosition;
+      //   const data = await combatUnitsData.getUnitGlobalPosition(id);
+      //   return (data && data.globalPosition) || null;
+      // },
+      // localPosition: async ({ id, localPosition }, _, { models: { combatUnitsData } }) => {
+      //   if (localPosition) return localPosition;
+      //   const data = await combatUnitsData.getUnitLocalPosition(id);
+      //   return (data && data.localPosition) || null;
+      // },
     },
 
     CombatUnitRole: {
-      unitType: async ({ unitType }, _, { models: { combatUnitsData } }) => {
-        const data = await combatUnitsData.getUnitType(unitType);
-
+      unitType: async ({ unitType }, _, { models: { combatUnitTypesData } }) => {
+        const data = await combatUnitTypesData.getType(unitType);
         return data;
       },
     },
