@@ -6,7 +6,7 @@ const { createApolloServer } = require('./apollo');
 
 const app = express();
 
-const port = process.env.PORT || config.port || 3000;
+const port = process.env.PORT || config.port || 5300;
 app.set('port', port);
 
 const httpServer = http.createServer(app);
