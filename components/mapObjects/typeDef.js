@@ -8,7 +8,7 @@ const typeDef = gql`
   }
 
   extend type Mutation {
-    addMapObject(object: JSON!): String
+    addMapObject(type: String!, object: JSON!): String
     updateMapObject(id: ID!, object: JSON!): Boolean
     removeMapObjects: [String]
     removeMapObject(id: ID!): String

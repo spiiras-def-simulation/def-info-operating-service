@@ -22,6 +22,10 @@ module.exports = {
         const result = await targetObjectsData.addObject(id);
         return result || null;
       },
+      removeTargetObjects: async (_, __, { models: { targetObjectsData } }) => {
+        const result = await targetObjectsData.removeObjects();
+        return !!result;
+      },
       removeTargetObject: async (_, { id }, { models: { targetObjectsData } }) => {
         const result = await targetObjectsData.removeObject(id);
         return result || null;
@@ -59,10 +63,7 @@ module.exports = {
         ),
         resolve: (payload, { id }) => {
           const { position: coordinates } = payload;
-          return {
-            id,
-            coordinates,
-          };
+          return { id, coordinates };
         },
       },
       onUpdateTargetObjectPath: {
@@ -79,6 +80,31 @@ module.exports = {
           const data = await targetObjectsData.getObjectPath(id);
           return { id, path: (data && data.path) || null };
         },
+      },
+      onDetectTargetObjects: {
+        subscribe: withFilter(
+          (_, __, { models: { targetObjectsData } }) => {
+            const pubsub = targetObjectsData.subscribeTargetObjects();
+            return pubsub.asyncIterator('status');
+          },
+          ({ status }) => {
+            return status === 'detected';
+          },
+        ),
+        resolve: async (_, __, { models: { targetObjectsData } }) => {
+          console.log('detected');
+          const data = await targetObjectsData.getDetectedObjects();
+          console.log(data && data.length);
+          return data || [];
+        },
+        // subscribe: (_, __, { models: { targetObjectsData } }) => {
+        //   const pubsub = targetObjectsData.subscribeDetectedObjects();
+        //   return pubsub.asyncIterator('TARGETS_DETECTED');
+        // },
+        // resolve: (payload) => {
+        //   const data = payload.objects;
+        //   return data || [];
+        // },
       },
     },
 

@@ -4,7 +4,6 @@ const typeDef = gql`
   extend type Subscription {
     onChangeStatusTargetObjects: [TargetObject]!
     onChangeStatusTargetObject(id: ID!): TargetObject
-    onDetectTargetObjects: [TargetObject]
   }
 
   extend type TargetObject {

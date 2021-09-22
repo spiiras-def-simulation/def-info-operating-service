@@ -16,8 +16,8 @@ module.exports = {
     },
 
     Mutation: {
-      addMapObject: async (_, { object }, { models: { mapObjectsData } }) => {
-        const result = await mapObjectsData.addObject(object);
+      addMapObject: async (_, { type, object }, { models: { mapObjectsData } }) => {
+        const result = await mapObjectsData.addObject(type, object);
         return result || null;
       },
       updateMapObject: async (_, { id, object }, { models: { mapObjectsData } }) => {

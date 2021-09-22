@@ -28,21 +28,6 @@ module.exports = {
           return status || null;
         },
       },
-      onDetectTargetObjects: {
-        subscribe: withFilter(
-          (_, __, { models: { targetObjectsData } }) => {
-            const pubsub = targetObjectsData.subscribeTargetObjects();
-            return pubsub.asyncIterator('status');
-          },
-          ({ status }) => {
-            return status === 'detected';
-          },
-        ),
-        resolve: async (_, __, { models: { targetObjectsData } }) => {
-          const data = await targetObjectsData.getDetectedObjects();
-          return data || [];
-        },
-      },
     },
 
     TargetObjectStatus: {

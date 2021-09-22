@@ -8,7 +8,8 @@ module.exports = {
           const pubsub = combatUnitsData.subscribeUnitObjects();
           return pubsub.asyncIterator('status');
         },
-        resolve: async (_, __, { models: { combatUnitsData } }) => {
+        resolve: async ({ id, status }, __, { models: { combatUnitsData } }) => {
+          console.log(`Change status id=${id} - ${status}`);
           const data = await combatUnitsData.getUnits();
           return data || [];
         },
@@ -23,7 +24,8 @@ module.exports = {
             return parseInt(payload.id) === parseInt(params.id);
           },
         ),
-        resolve: async (_, { id }, { models: { combatUnitsData } }) => {
+        resolve: async ({ status }, { id }, { models: { combatUnitsData } }) => {
+          console.log(`Change unit's status id=${id} - ${status}`);
           const data = await combatUnitsData.getUnit(id);
           return data || null;
         },

@@ -1,7 +1,7 @@
-const DataModel = require('./DataModel');
+const { PubSub } = require('graphql-subscriptions');
 
-const { mapObject, unmapObject } = require('./helpers');
-const { testData, Status } = require('./TargetObjectsData');
+const DataModel = require('../DataModel');
+const { mapObject, unmapObject } = require('../helpers');
 
 const mapObjectParams = {
   status: 'status',
@@ -22,9 +22,14 @@ const queues = {
 };
 
 class TargetObjectsDataModel extends DataModel {
+  constructor(options = {}) {
+    super(options);
+
+    // this.pubsubDetected = new PubSub();
+  }
+
   async getObjects() {
-    // const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: {} });
-    const dataResponse = testData;
+    const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: {} });
     if (this.checkFailedResponse(dataResponse)) return null;
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapObjectParams);
@@ -34,10 +39,7 @@ class TargetObjectsDataModel extends DataModel {
     });
   }
   async getObject(id) {
-    // const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: { id } });
-    const [dataResponse = null] = Object.entries(testData)
-      .filter(([missionId]) => missionId === id)
-      .map(([id, data]) => ({ id, ...data }));
+    const dataResponse = await this.getData({ queue: queues.GET_OBJECTS, message: { id } });
     if (this.checkFailedResponse(dataResponse)) return null;
     const data = mapObject(dataResponse, mapObjectParams);
     const pathData = data.path && JSON.parse(data.path);
@@ -53,22 +55,11 @@ class TargetObjectsDataModel extends DataModel {
   }
 
   async getDetectedObjects() {
-    // const dataResponse = await this.getData({ queue: queues.GET_DETECTED_OBJECTS, message: {} });
-    const dataResponse = Object.entries(testData)
-      .map(([id, data]) => ({ id, ...data }))
-      .filter(({ status }) => status === Status.DETECTED)
-      .reduce((prev, value) => {
-        const accumulate = { ...prev };
-        accumulate[value.id] = value;
-        return accumulate;
-      }, {});
-    // if (this.checkFailedResponse(dataResponse)) return null;
-    return Object.entries(dataResponse).map(([id, value]) => {
-      return { id, detectedCoordinates: value.coordinates };
+    const dataResponse = await this.getData({ queue: queues.GET_DETECTED_OBJECTS, message: {} });
+    if (this.checkFailedResponse(dataResponse)) return null;
+    return Object.entries(dataResponse).map(([id, [x, y, z]]) => {
+      return { id, detectedCoordinates: { x, y, z } };
     });
-    // return Object.entries(dataResponse).map(([id, [x, y, z]]) => {
-    //   return { id, detectedCoordinates: { x, y, z } };
-    // });
   }
   async getDetectedObjectImage(id) {
     const dataResponse = await this.getData({ queue: queues.GET_OBJECT_IMAGE, message: { id } });
@@ -83,11 +74,18 @@ class TargetObjectsDataModel extends DataModel {
     if (this.checkFailedResponse(dataResponse)) return null;
     return !!dataResponse;
   }
+  async removeObjects() {
+    const input = { key: 'table' };
+    const dataResponse = await this.getData({ queue: queues.REMOVE_OBJECT, message: input });
+    if (this.checkFailedResponse(dataResponse)) return null;
+    return true;
+  }
+
   async removeObject(id) {
     const input = { key: 'id', id };
     const dataResponse = await this.getData({ queue: queues.REMOVE_OBJECT, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
-    return !!dataResponse;
+    return id;
   }
 
   async addObjectsToMap({ number, location, target }) {
@@ -101,6 +99,20 @@ class TargetObjectsDataModel extends DataModel {
     return this.subscribe({ name: 'CO', type: 'topic' });
   }
 
+  // subscribeDetectedObjects() {
+  //   if (!this.pusherDetected) {
+  //     this.pusherDetected = setInterval(async () => {
+  //       const detected = await this.getDetectedObjects();
+  //       if (detected && detected.length) {
+  //         this.pubsubDetected.publish('TARGETS_DETECTED', {
+  //           objects: detected,
+  //         });
+  //       }
+  //     }, 500);
+  //   }
+  //   return this.pubsubDetected;
+  // }
+
   checkFailedResponse(response) {
     return (
       !response ||
@@ -110,5 +122,14 @@ class TargetObjectsDataModel extends DataModel {
     );
   }
 }
+
+TargetObjectsDataModel.Status = {
+  REGISTRED: 'created',
+  LAUNCHED: 'launched',
+  DETECTED: 'detected',
+  LOST: 'lost',
+  DESTROYED: 'destroyed',
+  STOPPED: 'stopped',
+};
 
 module.exports = TargetObjectsDataModel;

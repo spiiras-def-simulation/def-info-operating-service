@@ -18,8 +18,9 @@ const typeDef = gql`
   }
 
   extend type Mutation {
+    addCombatUnits(input: JSON!): Boolean
     addCombatUnit(input: JSON!): CombatUnit
-    removeCombatUnits: Boolean
+    # removeCombatUnits: Boolean
     removeCombatUnit(id: ID!): String
 
     addCombatUnitType(input: JSON!): CombatUnitType
@@ -29,11 +30,10 @@ const typeDef = gql`
     addCombatUnitRole(input: JSON!): CombatUnitRole
     removeCombatUnitRoles: Boolean
     removeCombatUnitRole(id: ID!): String
-
-    addCombatUnitsToMap(input: JSON!): Boolean
   }
 
   extend type Subscription {
+    onUpdateCombatUnitTimeLeft(id: ID!): CombatUnit!
     onUpdateCombatUnitGlobalPosition(id: ID!): CombatUnit!
     onUpdateCombatUnitLocalPosition(id: ID!): CombatUnit!
   }
@@ -68,17 +68,6 @@ const typeDef = gql`
     maxFuelConsume: Range
     maxTurningRadius: Range
   }
-
-  # type CombatUnitTypeInput {
-  #   name: String!
-  #   rangeVelocity: Range!
-  #   rangeVelocityUpVertical: Range!
-  #   rangeVelocityDownVertical: Range!
-  #   cargoType: ID!
-  #   maxCargoQuantity: Range!
-  #   maxFuelConsume: Range!
-  #   maxTurningRadius: Range!
-  # }
 
   type CombatUnitWeaponType {
     id: ID!

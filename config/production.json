@@ -1,5 +1,5 @@
 {
   "amqp": {
-    "connection": "amqp://admin:admin@rabbitmq"
+    "connection": "amqp://admin:admin@195.242.6.140"
   }
 }

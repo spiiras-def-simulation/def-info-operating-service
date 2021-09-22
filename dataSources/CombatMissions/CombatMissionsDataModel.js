@@ -1,7 +1,5 @@
-const DataModel = require('./DataModel');
-
-const { mapObject, unmapObject, saveMessageFile } = require('./helpers');
-const { testData } = require('./CombatMissionsData');
+const DataModel = require('../DataModel');
+const { mapObject, unmapObject } = require('../helpers');
 
 const mapCombatMission = {
   status: 'status',
@@ -29,21 +27,13 @@ const addMissionInputTestData = (data) => ({
   targetType: '1',
   timeIntervals: {
     start: 0,
-    order: 2400,
-    marching: 2000,
+    order: 300,
+    marching: 1000,
     attack: 300,
     reset: 500,
-    returning: 2000,
+    returning: 300,
   },
 });
-
-const MissionStatus = {
-  REGISTRED: 'created',
-  ANALYSED: 'processed',
-  LAUNCHED: 'launched',
-  REJECTED: 'rejected',
-  FINISHED: 'finished',
-};
 
 const queues = {
   GET_MISSIONS: 'get_mission_rpc',
@@ -57,8 +47,7 @@ const queues = {
 
 class CombatMissionsDataModel extends DataModel {
   async getMissions() {
-    // const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: {} });
-    const dataResponse = testData;
+    const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: {} });
     if (this.checkFailedResponse(dataResponse)) return [];
     return Object.entries(dataResponse).map(([id, value]) => {
       const data = mapObject(value, mapCombatMission);
@@ -74,27 +63,22 @@ class CombatMissionsDataModel extends DataModel {
   }
 
   async getMission(id) {
-    // const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: { id } });
-    const [dataResponse = null] = Object.entries(testData)
-      .filter(([missionId]) => missionId === id)
-      .map(([id, data]) => ({ id, ...data }));
-
+    const dataResponse = await this.getData({ queue: queues.GET_MISSIONS, message: { id } });
     if (this.checkFailedResponse(dataResponse)) return null;
-    // const data = mapObject(addMissionTestData(dataResponse), mapCombatMission);
     const data = mapObject(dataResponse, mapCombatMission);
     const mission = this.prepareMissionData(data);
     return { id, ...mission };
   }
 
   async getLaunchedMission() {
-    const dataResponse = await this.getMissionsByStatus(MissionStatus.LAUNCHED);
+    const dataResponse = await this.getMissionsByStatus(CombatMissionsDataModel.Status.LAUNCHED);
     const [mission] = dataResponse || [];
     return mission || null;
-    x;
   }
 
   async addMission(data) {
     const input = unmapObject(addMissionInputTestData(data), mapCombatMission);
+    input.targets_number = 3;
     const dataResponse = await this.getData({ queue: queues.ADD_MISSION, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
     return dataResponse.id;
@@ -118,7 +102,7 @@ class CombatMissionsDataModel extends DataModel {
     const input = { key: 'id', id };
     const dataResponse = await this.getData({ queue: queues.REMOVE_MISSION, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
-    return dataResponse;
+    return id;
   }
 
   async startMission(id) {
@@ -182,5 +166,13 @@ class CombatMissionsDataModel extends DataModel {
     return mission;
   }
 }
+
+CombatMissionsDataModel.Status = {
+  REGISTRED: 'created',
+  ANALYSED: 'processed',
+  LAUNCHED: 'launched',
+  REJECTED: 'rejected',
+  FINISHED: 'finished',
+};
 
 module.exports = CombatMissionsDataModel;

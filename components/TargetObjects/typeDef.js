@@ -9,6 +9,7 @@ const typeDef = gql`
 
   extend type Mutation {
     addTargetObject(id: ID!): TargetObject
+    removeTargetObjects: Boolean
     removeTargetObject(id: ID!): String
     addTargetObjectsToMap(input: JSON!): Boolean
     loadDetectedTargetObjects: [TargetObject]
@@ -18,6 +19,7 @@ const typeDef = gql`
     onUpdateTargetObjectsList: [TargetObject]
     onUpdateTargetObjectPosition(id: ID!): TargetObject!
     onUpdateTargetObjectPath(id: ID!): TargetObject!
+    onDetectTargetObjects: [TargetObject]
   }
 
   type TargetObject {
