@@ -85,7 +85,7 @@ class TargetObjectsDataModel extends DataModel {
     const input = { key: 'id', id };
     const dataResponse = await this.getData({ queue: queues.REMOVE_OBJECT, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
-    return !!dataResponse;
+    return id;
   }
 
   async addObjectsToMap({ number, location, target }) {

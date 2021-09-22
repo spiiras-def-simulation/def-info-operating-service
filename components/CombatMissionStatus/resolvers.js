@@ -34,7 +34,8 @@ module.exports = {
             return parseInt(payload.id) === parseInt(params.id);
           },
         ),
-        resolve: async (_, { id }, { models: { combatMissionsData } }) => {
+        resolve: async ({ status }, { id }, { models: { combatMissionsData } }) => {
+          console.log(`Change mission's status id=${id} - ${status}`);
           const data = await combatMissionsData.getMission(id);
           return data || null;
         },

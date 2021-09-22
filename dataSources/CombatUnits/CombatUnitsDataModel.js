@@ -7,7 +7,6 @@ const mapUnit = {
   tailNumber: 'tail_number',
   timePrepare: 'time_for_prepare',
   detectionRadius: 'detection_radius',
-  tvsSize: 'tvs_size',
   type: 'uav_type',
   role: 'uav_role',
   attackPoints: 'attack_coords',
@@ -38,6 +37,23 @@ class CombatUnitsDataModel extends DataModel {
     data.attackPoints = JSON.parse(data.attackPoints);
     return { id, ...data };
   }
+
+  async addUnits(data) {
+    const { number, ...unitData } = data;
+    const existUnits = await this.getUnits();
+    const addedUnits = await Promise.all(
+      Array(number)
+        .fill()
+        .map((_, order) =>
+          this.addUnit({
+            tailNumber: existUnits.length + order + 1,
+            ...unitData,
+          }),
+        ),
+    );
+    const dataResponse = addedUnits.filter((unit) => !!unit);
+    return !!dataResponse.length;
+  }
   async addUnit(data) {
     const input = unmapObject(data, mapUnit);
     const dataResponse = await this.getData({ queue: queues.ADD_UNIT, message: { ...input } });
@@ -54,7 +70,7 @@ class CombatUnitsDataModel extends DataModel {
     const input = { key: 'id', id };
     const dataResponse = await this.getData({ queue: queues.REMOVE_UNIT, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
-    return dataResponse;
+    return id;
   }
 
   async getUnitAltitude(id) {
@@ -90,29 +106,6 @@ class CombatUnitsDataModel extends DataModel {
       },
     };
     return { id, ...data };
-  }
-
-  async addUnitsToMap({ units }) {
-    const existUnits = await this.getUnits();
-    const addedUnitGroups = await Promise.all(
-      units.map(({ role, number }) =>
-        Promise.all(
-          Array(number)
-            .fill()
-            .map((_, order) =>
-              this.addUnit({
-                role,
-                tailNumber: existUnits.length + order + 1,
-                fuelResource: 16,
-                timePrepare: 30,
-              }),
-            ),
-        ),
-      ),
-    );
-    const addedUnits = addedUnitGroups.flat().filter((unit) => !!unit);
-    const dataResponse = addedUnits;
-    return !!dataResponse;
   }
 
   subscribeUnitObjects() {

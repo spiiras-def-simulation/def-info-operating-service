@@ -45,8 +45,8 @@ module.exports = {
     },
 
     Mutation: {
-      addCombatUnitsToMap: async (_, { input }, { models: { combatUnitsData } }) => {
-        const result = await combatUnitsData.addUnitsToMap(input);
+      addCombatUnits: async (_, { input }, { models: { combatUnitsData } }) => {
+        const result = await combatUnitsData.addUnits(input);
         return !!result;
       },
       addCombatUnit: async (_, { input }, { models: { combatUnitsData } }) => {

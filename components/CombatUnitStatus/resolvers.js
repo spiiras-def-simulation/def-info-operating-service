@@ -25,7 +25,7 @@ module.exports = {
           },
         ),
         resolve: async ({ status }, { id }, { models: { combatUnitsData } }) => {
-          console.log(`Change status id=${id} - ${status}`);
+          console.log(`Change unit's status id=${id} - ${status}`);
           const data = await combatUnitsData.getUnit(id);
           return data || null;
         },

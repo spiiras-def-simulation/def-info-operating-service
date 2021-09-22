@@ -102,7 +102,7 @@ class CombatMissionsDataModel extends DataModel {
     const input = { key: 'id', id };
     const dataResponse = await this.getData({ queue: queues.REMOVE_MISSION, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
-    return dataResponse;
+    return id;
   }
 
   async startMission(id) {

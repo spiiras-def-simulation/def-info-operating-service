@@ -18,6 +18,7 @@ const typeDef = gql`
   }
 
   extend type Mutation {
+    addCombatUnits(input: JSON!): Boolean
     addCombatUnit(input: JSON!): CombatUnit
     # removeCombatUnits: Boolean
     removeCombatUnit(id: ID!): String
@@ -29,8 +30,6 @@ const typeDef = gql`
     addCombatUnitRole(input: JSON!): CombatUnitRole
     removeCombatUnitRoles: Boolean
     removeCombatUnitRole(id: ID!): String
-
-    addCombatUnitsToMap(input: JSON!): Boolean
   }
 
   extend type Subscription {

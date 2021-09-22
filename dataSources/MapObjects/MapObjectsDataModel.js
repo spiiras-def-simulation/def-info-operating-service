@@ -81,7 +81,7 @@ class MapObjectsDataModel extends DataModel {
     const input = { key: 'id', id };
     const dataResponse = await this.getData({ queue: queues.REMOVE_OBJECTS, message: input });
     if (this.checkFailedResponse(dataResponse)) return null;
-    return dataResponse;
+    return id;
   }
 
   checkFailedResponse(response) {
