@@ -39,7 +39,7 @@ const queues = {
   GET_MISSIONS: 'get_mission_rpc',
   ADD_MISSION: 'add_mission_rpc',
   REMOVE_MISSION: 'delete_mission_rpc',
-  START_MISSION: 'set_current_mission_rpc',
+  START_MISSION: 'start_mission_rpc',
   GET_TARGETS_IMAGE: 'get_target_image',
   CONFIRM_ATTACK_TARGETS: 'confirm_strike_target_rpc',
   SET_MANUAL_CONTROL: 'manual_controll_rpc',
